@@ -25,7 +25,7 @@ public class Pawn : MonoBehaviour, IDamageable
     private float LastShootTime;
     public float ShootPerSec;
     public float BulletStartDistance;
-
+    
     private float ShootDelay { get { return 1.0f / ShootPerSec; } }
 
     void Start()
@@ -69,11 +69,13 @@ public class Pawn : MonoBehaviour, IDamageable
         {
             LastShootTime = Time.time;
 
+            var vel = Velocity.normalized * 0.125f;
+            
             var go = Instantiate(BulletPrefab) as GameObject;
                 go.transform.position = transform.position + dir * BulletStartDistance;
 
             var bullet = go.GetComponentInChildren<Bullet>();
-                bullet.OnStart(dir);
+                bullet.OnStart(dir - vel);
         }
     }
 

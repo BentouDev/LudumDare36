@@ -49,9 +49,4 @@ public class FollowCamera : MonoBehaviour
 
         }
     }
-
-    void OnGUI()
-    {
-        GUI.Label(new Rect(Screen.width - 200, 10, 200, 30), "Distance " + distance);
-    }
 }

@@ -7,6 +7,8 @@ public class WorldController : MonoBehaviour
     public GameObject DoorPrefab;
     public GameObject BossDoorPrefab;
 
+    public GameObject EnemyPrefab;
+
     private Game Game;
     private WorldData Data;
 
@@ -37,11 +39,18 @@ public class WorldController : MonoBehaviour
             toDestroy.Clear();
 
             CurrentRoom.gameObject.SetActive(false);
+
+            var bullets = FindObjectsOfType<Bullet>();
+            foreach (Bullet bullet in bullets)
+            {
+                DestroyObject(bullet.gameObject);
+            }
         }
 
         room.gameObject.SetActive(true);
         room.ShowAllDoorPlaceholders();
-        room.AwakeEnemies(Game.Player.Pawn);
+        
+        SpawnEnemies(room);
 
         CurrentRoom = room;
 
@@ -49,6 +58,20 @@ public class WorldController : MonoBehaviour
 
         Game.Camera.SetRoomBounds(CurrentRoom.transform.position, CurrentRoom.RoomSize);
         Game.Player.SetupPawn(position);
+    }
+
+    private void SpawnEnemies(Room room)
+    {
+        var enemies = GameObject.FindGameObjectsWithTag("EnemySpawn");
+        foreach (var enemy in enemies)
+        {
+            var go = Instantiate(EnemyPrefab, room.transform) as GameObject;
+                go.transform.position = enemy.transform.position;
+
+            DestroyObject(enemy.gameObject);
+        }
+
+        room.AwakeEnemies(Game.Player.Pawn);
     }
 
     public void BuildDoors(Room room)
