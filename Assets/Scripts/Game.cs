@@ -7,6 +7,7 @@ public class Game : MonoBehaviour
     public WorldController World;
     public MiniMapController MiniMap;
     public PlayerController Player;
+    public FollowCamera Camera;
 
     private List<GameState> States;
     

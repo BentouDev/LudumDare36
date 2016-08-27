@@ -7,8 +7,10 @@ class StartState : GameState
     protected override void OnStart()
     {
         var world = Generator.GenerateWorld();
+
         Game.World.CreateWorld(Game, world);
         Game.MiniMap.Init(Game, world);
+        
         Game.SwitchState<PlayState>();
     }
 

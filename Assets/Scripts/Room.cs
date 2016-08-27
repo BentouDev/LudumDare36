@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class Room : MonoBehaviour
 {
@@ -84,7 +85,16 @@ public class Room : MonoBehaviour
 
     public Vector3 RoomSize = Vector3.one;
 
-    public MapPos MapPosition;
+    public Transform LeftDoor;
+    public Transform RightDoor;
+    public Transform DownDoor;
+    public Transform UpDoor;
+
+    public MapPos MapPosition { get; set; }
+
+    private List<Enemy> Enemies;
+
+    public bool IsCleared {  get { return !Enemies.Any() || !Enemies.Any(e => e.IsAlive); } }
 
     void OnDrawGizmos()
     {
@@ -96,6 +106,20 @@ public class Room : MonoBehaviour
     {
         Gizmos.color = Color.green + Color.gray;
         Gizmos.DrawWireCube(transform.position, RoomSize);
+
+        Gizmos.color = Color.red;
+
+        if(LeftDoor)
+            Gizmos.DrawSphere(LeftDoor.position, 0.25f);
+
+        if (RightDoor)
+            Gizmos.DrawSphere(RightDoor.position, 0.25f);
+
+        if (DownDoor)
+            Gizmos.DrawSphere(DownDoor.position, 0.25f);
+
+        if (UpDoor)
+            Gizmos.DrawSphere(UpDoor.position, 0.25f);
     }
     
     public bool HasRoom(WorldData data, Room.DoorDirection direction)
@@ -115,5 +139,79 @@ public class Room : MonoBehaviour
         WorldData.RoomCell result = data.RoomMap[pos.x][pos.y];
         
         return result;
+    }
+
+    public void ShowAllDoorPlaceholders()
+    {
+        if(LeftDoor && !LeftDoor.gameObject.activeSelf)
+            LeftDoor.gameObject.SetActive(true);
+
+        if (RightDoor && !RightDoor.gameObject.activeSelf)
+            RightDoor.gameObject.SetActive(true);
+
+        if (DownDoor && !DownDoor.gameObject.activeSelf)
+            DownDoor.gameObject.SetActive(true);
+
+        if (UpDoor && !UpDoor.gameObject.activeSelf)
+            UpDoor.gameObject.SetActive(true);
+    }
+
+    public Vector3 GetDoorPosition(DoorDirection dir)
+    {
+        Vector3 result = Vector3.zero;
+        
+        switch (dir)
+        {
+            case DoorDirection.Left:
+                if (LeftDoor)
+                    result = LeftDoor.transform.position;
+                break;
+            case DoorDirection.Right:
+                if (RightDoor)
+                    result = RightDoor.transform.position;
+                break;
+            case DoorDirection.Down:
+                if (DownDoor)
+                    result = DownDoor.transform.position;
+                break;
+            case DoorDirection.Up:
+                if (UpDoor)
+                    result = UpDoor.transform.position;
+                break;
+        }
+
+        return result;
+    }
+
+    public void HideDoorPlaceholder(DoorDirection dir)
+    {
+        switch (dir)
+        {
+        case DoorDirection.Left:
+            if(LeftDoor)
+                LeftDoor.gameObject.SetActive(false);
+            break;
+        case DoorDirection.Right:
+            if(RightDoor)
+                RightDoor.gameObject.SetActive(false);
+            break;
+        case DoorDirection.Down:
+            if(DownDoor)
+                DownDoor.gameObject.SetActive(false);
+            break;
+        case DoorDirection.Up:
+            if(UpDoor)
+                UpDoor.gameObject.SetActive(false);
+            break;
+        }
+    }
+
+    public void AwakeEnemies(Pawn pawn)
+    {
+        Enemies = GetComponentsInChildren<Enemy>().ToList();
+        foreach (var enemy in Enemies)
+        {
+            enemy.OnStart(pawn);
+        }
     }
 }

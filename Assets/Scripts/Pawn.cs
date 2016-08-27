@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody))]
-public class Pawn : MonoBehaviour
+public class Pawn : MonoBehaviour, IDamageable
 {
     public GameObject BulletPrefab;
 
@@ -15,6 +15,9 @@ public class Pawn : MonoBehaviour
     public Rigidbody Rigidbody;
 
     public float Speed;
+
+    public int MaxHealth;
+    public int Health;
 
     private Vector3 Velocity;
     private Vector3 AppliedVelocity;
@@ -33,6 +36,11 @@ public class Pawn : MonoBehaviour
 
     public void OnInput(PlayerController.InputData currentInput)
     {
+        if (Health <= 0)
+        {
+            IsAlive = false;
+        }
+
         CurrentInput = IsAlive ? currentInput : new PlayerController.InputData();
 
         var flatVelocity = new Vector3(CurrentInput.Move.x, 0, CurrentInput.Move.y);
@@ -43,6 +51,16 @@ public class Pawn : MonoBehaviour
         {
             Shoot(shootDir.normalized);
         }
+    }
+
+    public void Heal(int heal)
+    {
+        Health += heal;
+    }
+
+    public void TakeDamage(int damage)
+    {
+        Health -= damage;
     }
 
     void Shoot(Vector3 dir)
@@ -78,5 +96,6 @@ public class Pawn : MonoBehaviour
         GUI.Label(new Rect(10,10,200,30), "Input " + CurrentInput.Move);
         GUI.Label(new Rect(10,30,200,30), "Vel " + Velocity);
         GUI.Label(new Rect(10,50,200,30), "Appleid " + AppliedVelocity);
+        GUI.Label(new Rect(10,70,200,30), "HP " + Health);
     }
 }

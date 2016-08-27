@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class WorldController : MonoBehaviour
 {
     public GameObject DoorPrefab;
+    public GameObject BossDoorPrefab;
 
     private Game Game;
     private WorldData Data;
@@ -39,9 +40,14 @@ public class WorldController : MonoBehaviour
         }
 
         room.gameObject.SetActive(true);
+        room.ShowAllDoorPlaceholders();
+        room.AwakeEnemies(Game.Player.Pawn);
+
         CurrentRoom = room;
+
         BuildDoors(room);
 
+        Game.Camera.SetRoomBounds(CurrentRoom.transform.position, CurrentRoom.RoomSize);
         Game.Player.SetupPawn(position);
     }
 
@@ -49,18 +55,29 @@ public class WorldController : MonoBehaviour
     {
         foreach (Room.DoorDirection dir in Room.AllDirs)
         {
-            if(!room.HasRoom(Data, dir))
+            var cell = room.GetRoomCell(Data, dir);
+            if(cell.Type == Room.RoomType.Empty)
                 continue;
+
+            room.HideDoorPlaceholder(dir);
+
+            bool isBoss = cell.Type == Room.RoomType.Boss ||
+                Data.RoomMap[room.MapPosition.x][room.MapPosition.y].Type == Room.RoomType.Boss;
             
-            var go = Instantiate(DoorPrefab, room.transform) as GameObject;
+            var go = Instantiate(isBoss ? BossDoorPrefab : DoorPrefab, room.transform) as GameObject;
             var door = go.GetComponent<Door>();
+            var doorPos = room.GetDoorPosition(dir);
+
+            if (doorPos.magnitude < 0.1f)
+            {
+                doorPos = GetDoorOffset(room, dir);
+            }
 
             door.Init(this, dir);
-            door.transform.position = GetDoorOffset(room, dir);
+            door.transform.position = doorPos;
             door.transform.forward = Room.DoorForward[dir];
 
             toDestroy.Add(door.transform);
-
         }
     }
 
@@ -89,9 +106,22 @@ public class WorldController : MonoBehaviour
 
     public void OnEnterDoor(Room.DoorDirection direction)
     {
+        if (!CurrentRoom.IsCleared)
+            return;
+
         var inverse = Room.InverseDirection[direction];
         var room = CurrentRoom.GetRoomCell(Data, direction);
-        ActivateRoom(room.Reference, GetDoorOffset(room.Reference, inverse, 0.25f));
+
+        var doorPos = room.Reference.GetDoorPosition(inverse);
+        if (doorPos.magnitude < 0.1f)
+        {
+            doorPos = GetDoorOffset(room.Reference, inverse);
+        }
+
+        doorPos -= Room.DoorForward[inverse];
+        doorPos.y = 0;
+
+        ActivateRoom(room.Reference, doorPos);
     }
 
     public IList<Room> GetAdjacent(Room room)

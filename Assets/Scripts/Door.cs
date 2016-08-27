@@ -16,7 +16,8 @@ public class Door : MonoBehaviour
 
     void OnTriggerEnter(Collider collider)
     {
-        if (World)
+        var pawn = collider.gameObject.GetComponentInParent<Pawn>();
+        if (pawn && World)
         {
             World.OnEnterDoor(Direction);
         }
