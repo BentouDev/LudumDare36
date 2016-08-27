@@ -10,9 +10,9 @@ public class PlayerController : MonoBehaviour
 
     public struct InputData
     {
-        public bool Attack;
         public bool Special;
         public Vector2 Move;
+        public Vector2 Shoot;
     }
 
     public void OnStart(Vector3 spawnPoint)
@@ -48,10 +48,13 @@ public class PlayerController : MonoBehaviour
     {
         InputData input = new InputData();
 
-        input.Attack = Input.GetButtonDown("Fire1");
         input.Special = Input.GetButtonDown("Jump");
+
         input.Move.x = Input.GetAxis("Horizontal");
         input.Move.y = Input.GetAxis("Vertical");
+
+        input.Shoot.x = Input.GetAxis("Shoot Y");
+        input.Shoot.y = Input.GetAxis("Shoot X");
 
         return input;
     }
