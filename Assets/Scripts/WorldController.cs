@@ -1,9 +1,13 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 public class WorldController : MonoBehaviour
 {
+    public GameObject KeyPickupPrefab;
+    public GameObject DeepDoorPrefab;
+
+    public List<GameObject> HealthPrefab;
+
     public GameObject DoorPrefab;
     public GameObject BossDoorPrefab;
 
@@ -13,7 +17,12 @@ public class WorldController : MonoBehaviour
     private WorldData Data;
 
     private Room CurrentRoom;
-    private List<Transform> toDestroy = new List<Transform>();
+    private List<Door> CurrentDoors = new List<Door>();
+
+    private bool WasCleared;
+
+    private bool hasWayToBoss;
+    private bool hasWayFromBoss;
 
     public Room GetCurrentRoom()
     {
@@ -31,12 +40,12 @@ public class WorldController : MonoBehaviour
     {
         if (CurrentRoom)
         {
-            foreach (Transform tr in toDestroy)
+            foreach (Door door in CurrentDoors)
             {
-                DestroyObject(tr.gameObject);
+                DestroyObject(door.gameObject);
             }
 
-            toDestroy.Clear();
+            CurrentDoors.Clear();
 
             CurrentRoom.gameObject.SetActive(false);
 
@@ -56,8 +65,91 @@ public class WorldController : MonoBehaviour
 
         BuildDoors(room);
 
-        Game.Camera.SetRoomBounds(CurrentRoom.transform.position, CurrentRoom.RoomSize);
+        var isCleared = room.IsCleared;
+
+        if (isCleared)
+        {
+            UnlockDoors();
+        }
+
+        WasCleared = isCleared;
+
         Game.Player.SetupPawn(position);
+        Game.Camera.SetRoomBounds(CurrentRoom.transform.position, CurrentRoom.RoomSize);
+        Game.Camera.Reset();
+    }
+
+    void Update()
+    {
+        if (!CurrentRoom)
+            return;
+
+        if (!WasCleared && CurrentRoom.IsCleared)
+        {
+            OnRoomCleared();
+        }
+
+        WasCleared = CurrentRoom.IsCleared;
+    }
+
+    private void OnRoomCleared()
+    {
+        bool isBoss = Data.RoomMap[CurrentRoom.MapPosition.x][CurrentRoom.MapPosition.y].Type == Room.RoomType.Boss;
+        if (isBoss)
+        {
+            Game.Music.PlayMystery();
+
+            var deep = Instantiate(DeepDoorPrefab, CurrentRoom.transform) as GameObject;
+                deep.transform.position = CurrentRoom.transform.position;
+
+            var deepDoor = deep.GetComponentInChildren<DeepDoors>();
+                deepDoor.Init(Game);
+
+            float random = Random.Range(0.0f, 1.0f);
+            if (random > 0.5f)
+            {
+                Game.Music.PlayMystery();
+
+                int index = Random.Range(0, HealthPrefab.Count);
+                var go = Instantiate(HealthPrefab[index], CurrentRoom.transform) as GameObject;
+                go.transform.position = CurrentRoom.transform.position;
+            }
+        }
+        else
+        {
+            if (CurrentRoom.KeyPickup != null)
+            {
+                Game.Music.PlayMystery();
+
+                var go = Instantiate(KeyPickupPrefab, CurrentRoom.transform) as GameObject;
+                go.transform.position = CurrentRoom.transform.position;
+
+                var key = go.GetComponent<KeyPickup>();
+                key.Init(CurrentRoom.KeyPickup);
+            }
+            else
+            {
+                float random = Random.Range(0.0f, 1.0f);
+                if (random > 0.5f)
+                {
+                    Game.Music.PlayMystery();
+
+                    int index = Random.Range(0, HealthPrefab.Count);
+                    var go = Instantiate(HealthPrefab[index], CurrentRoom.transform) as GameObject;
+                    go.transform.position = CurrentRoom.transform.position;
+                }
+            }
+        }
+        
+        UnlockDoors();
+    }
+
+    private void UnlockDoors()
+    {
+        foreach (Door door in CurrentDoors)
+        {
+            door.Unlock();
+        }
     }
 
     private void SpawnEnemies(Room room)
@@ -76,16 +168,30 @@ public class WorldController : MonoBehaviour
 
     public void BuildDoors(Room room)
     {
+        bool isBoss = Data.RoomMap[room.MapPosition.x][room.MapPosition.y].Type == Room.RoomType.Boss;
+
         foreach (Room.DoorDirection dir in Room.AllDirs)
         {
-            var cell = room.GetRoomCell(Data, dir);
+            /*var cell = room.GetGlobalRoomCell(Data, dir);
             if(cell.Type == Room.RoomType.Empty)
+                continue;
+
+            bool toBoss = cell.Type == Room.RoomType.Boss;
+            bool isFirstRoom = room == Data.FirstRoom || cell.Reference == Data.FirstRoom;
+
+            if (((isBoss || toBoss) && isFirstRoom) || (isBoss && hasWayToBoss) || (toBoss && hasWayToBoss))
                 continue;
 
             room.HideDoorPlaceholder(dir);
 
-            bool isBoss = cell.Type == Room.RoomType.Boss ||
-                Data.RoomMap[room.MapPosition.x][room.MapPosition.y].Type == Room.RoomType.Boss;
+            hasWayToBoss |= isBoss;
+            hasWayFromBoss |= toBoss;*/
+
+            var cell = room.GetConnectedRoomCell(dir);
+            if (cell.Type == Room.RoomType.Empty)
+                continue;
+
+            room.HideDoorPlaceholder(dir);
             
             var go = Instantiate(isBoss ? BossDoorPrefab : DoorPrefab, room.transform) as GameObject;
             var door = go.GetComponent<Door>();
@@ -96,11 +202,11 @@ public class WorldController : MonoBehaviour
                 doorPos = GetDoorOffset(room, dir);
             }
 
-            door.Init(this, dir);
+            door.Init(this, dir, cell.Reference.KeyLock);
             door.transform.position = doorPos;
             door.transform.forward = Room.DoorForward[dir];
 
-            toDestroy.Add(door.transform);
+            CurrentDoors.Add(door);
         }
     }
 
@@ -132,8 +238,10 @@ public class WorldController : MonoBehaviour
         if (!CurrentRoom.IsCleared)
             return;
 
+        CurrentRoom.KeyLock = null;
+
         var inverse = Room.InverseDirection[direction];
-        var room = CurrentRoom.GetRoomCell(Data, direction);
+        var room = CurrentRoom.GetGlobalRoomCell(Data, direction);
 
         var doorPos = room.Reference.GetDoorPosition(inverse);
         if (doorPos.magnitude < 0.1f)
@@ -153,7 +261,7 @@ public class WorldController : MonoBehaviour
 
         foreach (Room.DoorDirection dir in Room.AllDirs)
         {
-            WorldData.RoomCell cell = room.GetRoomCell(Data, dir);
+            WorldData.RoomCell cell = room.GetGlobalRoomCell(Data, dir);
             if (cell.Type != Room.RoomType.Empty)
             {
                 result.Add(cell.Reference);

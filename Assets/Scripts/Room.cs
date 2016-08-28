@@ -90,9 +90,14 @@ public class Room : MonoBehaviour
     public Transform DownDoor;
     public Transform UpDoor;
 
-    public MapPos MapPosition { get; set; }
-
     private List<Enemy> Enemies;
+
+    public Dictionary<DoorDirection, WorldData.RoomCell> Connections = new Dictionary<DoorDirection, WorldData.RoomCell>();
+
+    public bool IsMainRoom { get; set; }
+    public Door.Key KeyLock { get; set; }
+    public Door.Key KeyPickup { get; set; }
+    public MapPos MapPosition { get; set; }
 
     public bool IsCleared {  get { return !Enemies.Any() || !Enemies.Any(e => e.IsAlive); } }
 
@@ -124,16 +129,42 @@ public class Room : MonoBehaviour
     
     public bool HasRoom(WorldData data, Room.DoorDirection direction)
     {
-        WorldData.RoomCell cell = GetRoomCell(data, direction);
+        WorldData.RoomCell cell = GetGlobalRoomCell(data, direction);
         return cell.Type != RoomType.Empty;
     }
 
-    public WorldData.RoomCell GetRoomCell(WorldData data, Room.DoorDirection direction)
+    public bool HasEdge(WorldData data, DoorDirection direction)
     {
         var offset = RoomOffset[direction];
         var pos = MapPosition + offset;
-        
-        if(pos.x < 0 || pos.x >= data.WorldWidth || pos.y < 0 || pos.y >= data.WorldHeight)
+
+        if (pos.x < 0 || pos.x >= data.WorldWidth || pos.y < 0 || pos.y >= data.WorldHeight)
+            return true;
+
+        return false;
+    }
+
+    public void SetConnection(DoorDirection direction, WorldData.RoomCell cell)
+    {
+        Connections[direction] = cell;
+    }
+
+    public WorldData.RoomCell GetConnectedRoomCell(DoorDirection direction)
+    {
+        WorldData.RoomCell result = new WorldData.RoomCell();
+
+        if (Connections.ContainsKey(direction))
+            result = Connections[direction];
+
+        return result;
+    }
+
+    public WorldData.RoomCell GetGlobalRoomCell(WorldData data, Room.DoorDirection direction)
+    {
+        var offset = RoomOffset[direction];
+        var pos = MapPosition + offset;
+
+        if(HasEdge(data, direction))
             return new WorldData.RoomCell();
 
         WorldData.RoomCell result = data.RoomMap[pos.x][pos.y];

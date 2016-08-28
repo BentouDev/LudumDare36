@@ -10,33 +10,60 @@ ModelImporter:
     100004: Wall
     100006: GateBig
     100008: GateSmall
+    100010: Torus
+    100012: Cube
+    100014: Cube_001
+    100016: Armature
+    100018: Bone
+    100020: Bone_001
+    100022: Cube_002
     400000: //RootNode
     400002: Corner
     400004: Wall
     400006: GateBig
     400008: GateSmall
+    400010: Torus
+    400012: Cube
+    400014: Cube_001
+    400016: Armature
+    400018: Bone
+    400020: Bone_001
+    400022: Cube_002
     2300000: //RootNode
     2300002: Corner
     2300004: Wall
     2300006: GateBig
     2300008: GateSmall
+    2300010: Torus
+    2300012: Cube
+    2300014: Cube_001
     3300000: //RootNode
     3300002: Corner
     3300004: Wall
     3300006: GateBig
     3300008: GateSmall
+    3300010: Torus
+    3300012: Cube
+    3300014: Cube_001
     4300000: Cube
     4300002: Corner
     4300004: Wall
     4300006: GateBig
     4300008: GateSmall
+    4300010: Torus
+    4300012: Cube_001
+    4300014: Cube_002
     6400000: //RootNode
     6400002: Corner
     6400004: Wall
     6400006: GateBig
     6400008: GateSmall
+    6400010: Torus
+    6400012: Cube
+    6400014: Cube_001
     7400000: Default Take
     9500000: //RootNode
+    13700000: Cube_002
   materials:
     importMaterials: 1
     materialName: 0

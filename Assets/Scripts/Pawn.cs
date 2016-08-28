@@ -4,6 +4,12 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody))]
 public class Pawn : MonoBehaviour, IDamageable
 {
+    public Transform BodyBone;
+    public Transform HeadBone;
+
+    public AudioRandomizer ShootEffect;
+    public AudioRandomizer ScreamEffect;
+
     public GameObject BulletPrefab;
 
     public bool drawDebug;
@@ -28,6 +34,18 @@ public class Pawn : MonoBehaviour, IDamageable
     
     private float ShootDelay { get { return 1.0f / ShootPerSec; } }
 
+    private List<Door.Key> Keys = new List<Door.Key>();
+
+    public bool HasKey(Door.Key key)
+    {
+        return Keys.Contains(key);
+    }
+
+    public void PickupKey(Door.Key keyPickup)
+    {
+        Keys.Add(keyPickup);
+    }
+
     void Start()
     {
         IsAlive = true;
@@ -46,9 +64,13 @@ public class Pawn : MonoBehaviour, IDamageable
         var flatVelocity = new Vector3(CurrentInput.Move.x, 0, CurrentInput.Move.y);
         Velocity = flatVelocity * Speed;
 
+        if(Velocity.magnitude > Mathf.Epsilon)
+            BodyBone.forward = Velocity.normalized;
+        
         var shootDir = new Vector3(currentInput.Shoot.x, 0, currentInput.Shoot.y);
         if (shootDir.magnitude > Mathf.Epsilon)
         {
+            HeadBone.rotation = Quaternion.LookRotation(Vector3.up, shootDir.normalized);
             Shoot(shootDir.normalized);
         }
     }
@@ -60,6 +82,7 @@ public class Pawn : MonoBehaviour, IDamageable
 
     public void TakeDamage(int damage)
     {
+        ScreamEffect.Play();
         Health -= damage;
     }
 
@@ -67,6 +90,7 @@ public class Pawn : MonoBehaviour, IDamageable
     {
         if (Time.time - LastShootTime > ShootDelay)
         {
+            ShootEffect.Play();
             LastShootTime = Time.time;
 
             var vel = Velocity.normalized * 0.125f;

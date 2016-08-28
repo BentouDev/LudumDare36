@@ -5,6 +5,7 @@ using System.Linq;
 public class Game : MonoBehaviour
 {
     public WorldController World;
+    public MusicController Music;
     public MiniMapController MiniMap;
     public PlayerController Player;
     public FollowCamera Camera;
@@ -15,6 +16,9 @@ public class Game : MonoBehaviour
 
     void Start()
     {
+        if (!Music)
+            Music = FindObjectOfType<MusicController>();
+
         if (!World)
             World = FindObjectOfType<WorldController>();
 

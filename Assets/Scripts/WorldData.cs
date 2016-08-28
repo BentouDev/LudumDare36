@@ -28,8 +28,9 @@ public class WorldData
         [SerializeField]
         public Room.RoomType Type;
 
-        [SerializeField] public Room Reference;
-
+        [SerializeField]
+        public Room Reference;
+        
         public RoomCell(Room.RoomType type, Room room)
         {
             Type = type;

@@ -33,7 +33,11 @@ public class PlayerController : MonoBehaviour
 
     public void OnEnd()
     {
-        DestroyObject(Pawn.gameObject);
+        if (Pawn)
+        {
+            DestroyObject(Pawn.gameObject);
+            Pawn = null;
+        }
     }
 
     public void OnUpdate()
