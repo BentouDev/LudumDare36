@@ -24,6 +24,8 @@ public class Enemy : MonoBehaviour, IDamageable
 
     public bool IsAlive { get { return Health > 0; } }
 
+    protected bool WasAlive;
+
     void OnDestroy()
     {
         Sound.Audio.Stop();
@@ -36,6 +38,13 @@ public class Enemy : MonoBehaviour, IDamageable
         Rigidbody = GetComponent<Rigidbody>();
         LastShootTime = Time.time;
         Pawn = pawn;
+    }
+
+    IEnumerator WaitDisable()
+    {
+        yield return new WaitForSeconds(BlinkTime);
+
+        gameObject.SetActive(false);
     }
 
     void Update()
@@ -56,10 +65,21 @@ public class Enemy : MonoBehaviour, IDamageable
             Rigidbody.velocity = Vector3.zero;
         }
 
-        if (!IsAlive)
+        if (!IsAlive && WasAlive)
         {
-            gameObject.SetActive(false);
+            StopAllCoroutines();
+
+            var renderers = GetComponentsInChildren<MeshRenderer>();
+            foreach (var renderer in renderers)
+            {
+                renderer.material.SetColor("_BlinkColor", Color.grey);
+                StartCoroutine(Blink(renderer, 0.5f));
+            }
+
+            StartCoroutine(WaitDisable());
         }
+
+        WasAlive = IsAlive;
     }
 
     public void TakeDamage(int damage)
@@ -73,14 +93,14 @@ public class Enemy : MonoBehaviour, IDamageable
         }
     }
 
-    public IEnumerator Blink(MeshRenderer renderer)
+    public IEnumerator Blink(MeshRenderer renderer, float coefficient = 1)
     {
         float elapsed = 0;
         while (elapsed < BlinkTime)
         {
             elapsed += Time.deltaTime;
 
-            renderer.material.SetFloat("_Blink", Mathf.Sin(elapsed/BlinkTime));
+            renderer.material.SetFloat("_Blink", Mathf.Sin(coefficient * (elapsed / BlinkTime)));
 
             yield return null;
         }

@@ -6,6 +6,8 @@ class StartState : GameState
     public WorldGenerator Generator;
     public float StartDelay;
 
+    private bool Started;
+
     IEnumerator StartAnim()
     {
         yield return new WaitForSeconds(StartDelay);
@@ -20,7 +22,11 @@ class StartState : GameState
 
     public void DoStart()
     {
-        StartCoroutine(StartAnim());
+        if (!Started)
+        {
+            Started = true;
+            StartCoroutine(StartAnim());
+        }
     }
 
     protected override void OnStart()

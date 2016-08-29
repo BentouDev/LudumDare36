@@ -144,9 +144,13 @@ public class Room : MonoBehaviour
         return false;
     }
 
-    public void SetConnection(DoorDirection direction, WorldData.RoomCell cell)
+    public void SetConnection(DoorDirection direction, WorldData.RoomCell cell, WorldData.RoomCell thisCell)
     {
+        if (cell.Type == RoomType.Empty || cell.Reference == null)
+            return;
+
         Connections[direction] = cell;
+        cell.Reference.Connections[InverseDirection[direction]] = thisCell;
     }
 
     public WorldData.RoomCell GetConnectedRoomCell(DoorDirection direction)

@@ -16,7 +16,7 @@ public class Boss : Enemy
 
                 for (int i = 0; i < ShootsAtOnce; i++)
                 {
-                    var dir = Quaternion.AngleAxis(angle + angle*i, Vector3.up)*Vector3.forward;
+                    var dir = Quaternion.AngleAxis(angle * i, Vector3.up)*Vector3.forward;
                     Shoot(dir);
                 }
             }

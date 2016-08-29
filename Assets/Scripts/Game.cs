@@ -7,6 +7,7 @@ public class Game : MonoBehaviour
     public WorldController World;
     public MusicController Music;
     public MiniMapController MiniMap;
+    public HealthBar Health;
     public PlayerController Player;
     public FollowCamera Camera;
 
