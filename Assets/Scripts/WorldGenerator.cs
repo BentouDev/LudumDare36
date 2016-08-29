@@ -165,7 +165,11 @@ public class WorldGenerator : MonoBehaviour
 
             var nextKey = Info.Keys.Pop();
             var next = FindFurthest(bossCell, ref processed);
-            
+
+            if (furthest.Room.KeyLock != null
+            || next.Room.KeyPickup != null)
+                continue;
+
             furthest.Room.KeyLock = nextKey.Key;
             next.Room.KeyPickup = nextKey.Key;
 
