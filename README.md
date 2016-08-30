@@ -1,7 +1,7 @@
 # Tank in Dungeon
 My Entry for Compo Ludum Dare 36 - Ancient Technology
 
->You can play this game on Itch.io
+>You can play this game on [Itch.io]
 
 >this is an updated version,
 >for source of original entry go [here]
