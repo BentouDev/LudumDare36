@@ -9,8 +9,8 @@ public class Door : MonoBehaviour
     public string ClodeAnimIdle;
 
     public Animator Anim;
-
-    public Key KeyInstance { get; set; }
+    
+    public Key KeyInstance { get; protected set; }
 
     public MeshRenderer Renderer;
     public int MaterialInstance;
@@ -74,11 +74,6 @@ public class Door : MonoBehaviour
         var pawn = collider.gameObject.GetComponentInParent<Pawn>();
         if (pawn && World)
         {
-            if (pawn.HasKey(KeyInstance))
-            {
-                UnlockWithKey(KeyInstance);
-            }
-
             if (isLocked || KeyInstance != null)
                 return;
 

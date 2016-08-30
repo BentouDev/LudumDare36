@@ -100,6 +100,7 @@ public class Room : MonoBehaviour
     public MapPos MapPosition { get; set; }
 
     public bool IsCleared {  get { return !Enemies.Any() || !Enemies.Any(e => e.IsAlive); } }
+    public bool IsDiscovered { get; set; }
 
     void OnDrawGizmos()
     {

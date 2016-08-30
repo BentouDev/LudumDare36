@@ -58,6 +58,7 @@ public class WorldController : MonoBehaviour
 
         room.gameObject.SetActive(true);
         room.ShowAllDoorPlaceholders();
+        room.IsDiscovered = true;
         
         SpawnEnemies(room);
 

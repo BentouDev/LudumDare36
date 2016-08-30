@@ -20,6 +20,7 @@ public class MiniMapController : MonoBehaviour
     private WorldData data;
     private Game game;
 
+    public bool DisplayUndiscovered;
     public bool DisplayKeys;
     public bool DisplayLocks;
 
@@ -55,6 +56,14 @@ public class MiniMapController : MonoBehaviour
 
     void HandleIcon(CellIcon icon)
     {
+        if (!DisplayUndiscovered && !icon.Cell.Reference.IsDiscovered)
+        {
+            icon.SetVisible(false);
+            return;
+        }
+        
+        icon.SetVisible(true);
+
         foreach (Room.DoorDirection dir in Room.AllDirs)
         {
             var img = icon.GetImage(dir);
@@ -88,11 +97,7 @@ public class MiniMapController : MonoBehaviour
         }
         else
         {
-            if (icon.Cell.Reference.IsMainRoom)
-            {
-                icon.Content.color = MainColor;
-            }
-            else if (icon.Cell.Type == Room.RoomType.Boss)
+            if (icon.Cell.Type == Room.RoomType.Boss)
             {
                 icon.Content.color = Color.red;
             }

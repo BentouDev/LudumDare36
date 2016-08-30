@@ -7,7 +7,7 @@ public class Boss : Enemy
 
     void Update()
     {
-        if (Pawn && IsAlive)
+        if (CanMove && Pawn && IsAlive)
         {
             var distance = transform.position - Pawn.transform.position;
             if (Time.time - LastShootTime > ShootDelay)
@@ -25,9 +25,20 @@ public class Boss : Enemy
             Rigidbody.velocity = -distance.normalized * Speed;
         }
 
-        if (!IsAlive)
+        if (!IsAlive && WasAlive)
         {
-            gameObject.SetActive(false);
+            StopAllCoroutines();
+
+            var renderers = GetComponentsInChildren<MeshRenderer>();
+            foreach (var renderer in renderers)
+            {
+                renderer.material.SetColor("_BlinkColor", Color.grey);
+                StartCoroutine(Blink(renderer, 0.5f));
+            }
+
+            StartCoroutine(WaitDisable());
         }
+
+        WasAlive = IsAlive;
     }
 }

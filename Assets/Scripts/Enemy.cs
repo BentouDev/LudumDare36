@@ -20,11 +20,14 @@ public class Enemy : MonoBehaviour, IDamageable
 
     public float BlinkTime;
 
+    public float StartDelayTime = 1;
+
     protected float ShootDelay { get { return 1.0f / ShootPerSec; } }
 
     public bool IsAlive { get { return Health > 0; } }
 
     protected bool WasAlive;
+    protected bool CanMove;
 
     void OnDestroy()
     {
@@ -38,9 +41,18 @@ public class Enemy : MonoBehaviour, IDamageable
         Rigidbody = GetComponent<Rigidbody>();
         LastShootTime = Time.time;
         Pawn = pawn;
+
+        StartCoroutine(WaitEnable());
     }
 
-    IEnumerator WaitDisable()
+    protected IEnumerator WaitEnable()
+    {
+        yield return new WaitForSeconds(StartDelayTime);
+
+        CanMove = true;
+    }
+
+    protected IEnumerator WaitDisable()
     {
         yield return new WaitForSeconds(BlinkTime);
 
@@ -49,7 +61,7 @@ public class Enemy : MonoBehaviour, IDamageable
 
     void Update()
     {
-        if (Pawn && IsAlive)
+        if (CanMove && Pawn && IsAlive)
         {
             var distance = transform.position - Pawn.transform.position;
             if (Time.time - LastShootTime > ShootDelay)

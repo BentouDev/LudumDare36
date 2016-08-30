@@ -66,10 +66,10 @@ public class FollowCamera : MonoBehaviour
             var pos = Target.position + MinDistance;
             TargetPos = new Vector3(pos.x, transform.position.y, pos.z);
 
-            TargetPos.x = Mathf.Max(TargetPos.x, RoomCenter.x - (RoomSize.x * 0.5f));
+            /*TargetPos.x = Mathf.Max(TargetPos.x, RoomCenter.x - (RoomSize.x * 0.5f));
             TargetPos.x = Mathf.Min(TargetPos.x, RoomCenter.x + (RoomSize.x * 0.5f));
             TargetPos.z = Mathf.Max(TargetPos.z, RoomCenter.z - (RoomSize.z * 0.5f));
-            TargetPos.z = Mathf.Min(TargetPos.z, RoomCenter.z + (RoomSize.z * 0.5f));
+            TargetPos.z = Mathf.Min(TargetPos.z, RoomCenter.z + (RoomSize.z * 0.5f));*/
         }
 
         transform.position = Vector3.Lerp(transform.position, TargetPos, Time.fixedDeltaTime * Speed * distance.normalized.magnitude);
