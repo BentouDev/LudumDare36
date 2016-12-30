@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
-using System.Collections.Generic;
 using UnityEngine.Audio;
 
 public class MusicController : MonoBehaviour
@@ -80,7 +78,7 @@ public class MusicController : MonoBehaviour
     {
         float dB;
 
-        if (Math.Abs(linear) > Mathf.Epsilon)
+        if (Mathf.Abs(linear) > Mathf.Epsilon)
             dB = 20.0f * Mathf.Log10(linear);
         else
             dB = -144.0f;

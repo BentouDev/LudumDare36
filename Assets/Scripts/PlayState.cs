@@ -8,6 +8,8 @@ public class PlayState : GameState
         Game.Player.OnStart(Vector3.zero);
         Game.Camera.SetTarget(Game.Player.Pawn.transform);
         Game.Health.Reference = Game.Player.Pawn;
+
+        Game.OnLevelLoaded();
     }
 
     protected override void OnUpdate()

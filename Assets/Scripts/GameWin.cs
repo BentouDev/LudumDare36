@@ -4,23 +4,21 @@ using UnityEngine.SceneManagement;
 
 public class GameWin : GameState
 {
-    public int NextLevel;
+    public MenuBase WinMenu;
+
     public float Delay;
 
     IEnumerator DoDelay()
     {
         yield return new WaitForSeconds(Delay);
 
-        LoadNextLevel();
-    }
-
-    public void LoadNextLevel()
-    {
-        SceneManager.LoadScene(NextLevel);
+        Game.Controller.SwitchToMenu(WinMenu);
+        Game.Controller.AnimShow(WinMenu);
     }
 
     protected override void OnStart()
     {
+        Game.Score.StopCountingTime();
         StartCoroutine(DoDelay());
     }
 
@@ -31,6 +29,6 @@ public class GameWin : GameState
 
     protected override void OnEnd()
     {
-
+        Game.OnLevelCleanUp();
     }
 }

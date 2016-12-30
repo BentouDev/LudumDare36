@@ -3,14 +3,17 @@ using System.Collections.Generic;
 
 public class WorldController : MonoBehaviour
 {
+    [Header("Pickups")]
     public GameObject KeyPickupPrefab;
     public GameObject DeepDoorPrefab;
 
     public List<GameObject> HealthPrefab;
 
+    [Header("Doors")]
     public GameObject DoorPrefab;
     public GameObject BossDoorPrefab;
 
+    [Header("Enemies")]
     public GameObject EnemyPrefab;
 
     private Game Game;
@@ -58,7 +61,6 @@ public class WorldController : MonoBehaviour
 
         room.gameObject.SetActive(true);
         room.ShowAllDoorPlaceholders();
-        room.IsDiscovered = true;
         
         SpawnEnemies(room);
 
@@ -70,10 +72,19 @@ public class WorldController : MonoBehaviour
 
         if (isCleared)
         {
-            UnlockDoors();
+            if (!room.IsDiscovered && room.KeyPickup != null)
+            {
+                OnRoomCleared();
+            }
+            else
+            {
+                UnlockDoors();
+            }
         }
 
         WasCleared = isCleared;
+
+        room.IsDiscovered = true;
 
         Game.Player.SetupPawn(position);
         Game.Camera.SetRoomBounds(CurrentRoom.transform.position, CurrentRoom.RoomSize);

@@ -20,6 +20,7 @@ public class MiniMapController : MonoBehaviour
     private WorldData data;
     private Game game;
 
+    public bool DisplayCoordinates;
     public bool DisplayUndiscovered;
     public bool DisplayKeys;
     public bool DisplayLocks;
@@ -56,7 +57,18 @@ public class MiniMapController : MonoBehaviour
 
     void HandleIcon(CellIcon icon)
     {
-        if (!DisplayUndiscovered && !icon.Cell.Reference.IsDiscovered)
+        var isDiscovered = icon.Cell.Reference.IsDiscovered;
+        if (DisplayCoordinates)
+        {
+            var map = icon.Cell.Reference.MapPosition;
+            icon.Text.text = map.x + ":" + map.y;
+        }
+        else
+        {
+            icon.Text.text = string.Empty;
+        }
+
+        if (!DisplayUndiscovered && !isDiscovered)
         {
             icon.SetVisible(false);
             return;
@@ -71,26 +83,23 @@ public class MiniMapController : MonoBehaviour
             if (connection.Type != Room.RoomType.Empty)
             {
                 img.gameObject.SetActive(true);
-                img.color = DisplayLocks && connection.Reference.KeyLock != null ? connection.Reference.KeyLock.color : Color.white;
+                img.color = (DisplayLocks || isDiscovered) && connection.Reference.KeyLock != null ? connection.Reference.KeyLock.color : Color.white;
             }
             else
             {
                 img.gameObject.SetActive(false);
             }
         }
-
-        if (DisplayKeys)
+        
+        if (DisplayKeys && icon.Cell.Reference.KeyPickup != null)
         {
-            if (icon.Cell.Reference.KeyPickup != null)
-            {
-                icon.Content.sprite = KeySprite;
-            }
-            else
-            {
-                icon.Content.sprite = NormalSprite;
-            }
+            icon.Content.sprite = KeySprite;
         }
-
+        else
+        {
+            icon.Content.sprite = NormalSprite;
+        }
+        
         if (icon.Cell.Reference == game.World.GetCurrentRoom())
         {
             icon.Content.color = CurrentColor;
