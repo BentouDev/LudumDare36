@@ -17,6 +17,8 @@ class StartState : GameState
         Game.World.CreateWorld(Game, world);
         Game.MiniMap.Init(Game, world);
 
+        Game.Score.StartCountingTime();
+
         Game.SwitchState<PlayState>();
     }
 

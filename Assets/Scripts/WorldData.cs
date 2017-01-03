@@ -36,5 +36,22 @@ public class WorldData
             Type = type;
             Reference = room;
         }
+
+        public bool IsEmpty()
+        {
+            return Type == Room.RoomType.Empty || Reference == null;
+        }
+
+        public override string ToString()
+        {
+            if (Reference)
+            {
+                return "{'" + Type.ToString() + "' at '" + Reference.MapPosition.ToString() + "'}";
+            }
+            else
+            {
+                return "Empty";
+            }
+        }
     }
 }

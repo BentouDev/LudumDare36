@@ -1,11 +1,22 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using Random = UnityEngine.Random;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class WorldGenerator : MonoBehaviour
 {
+#if UNITY_EDITOR
+    [MenuItem("Debug/Save Last Random Seed")]
+    public static void SaveSeed()
+    {
+        var json = JsonUtility.ToJson(LastSeed);
+        PlayerPrefs.SetString("LastRandom", json);
+    }
+#endif
+
     [System.Serializable]
     public struct RoomInfo
     {
@@ -31,23 +42,33 @@ public class WorldGenerator : MonoBehaviour
         public bool HasBoss;
     }
 
-    public bool SetSeed;
-    public Random.State Seed;
+    [Header("Debug")]
+    public bool SetSavedSeed;
 
+#if UNITY_EDITOR
+    [SerializeField]
+    private static Random.State LastSeed;
+#endif
+
+    [Header("Rooms")]
     public Transform WorldParent;
 
+    [Space]
     public GameObject FirstRoom;
     public List<RoomInfo> RoomPrefabs;
 
+    [Header("Keys")]
     public List<Door.Key> Keys;
+
+    [Header("World Size")]
+    public int CorridorLength = 4;
+    public bool allowLoops;
 
     public int MinWidth = 3;
     public int MaxWidth = 10;
 
     public int MinHeight = 3;
     public int MaxHeight = 10;
-
-    public int CorridorLength = 4;
 
     [Range(0.125f, 0.75f)]
     public float MinMapFullfill = 0.3f;
@@ -63,10 +84,21 @@ public class WorldGenerator : MonoBehaviour
 
     public WorldData GenerateWorld()
     {
-        if (SetSeed)
-            Random.state = Seed;
-
-        Debug.Log("SEED : " + Random.state);
+#if UNITY_EDITOR
+        if (SetSavedSeed)
+        {
+            var json = PlayerPrefs.GetString("LastRandom");
+            if (!string.IsNullOrEmpty(json))
+            {
+                LastSeed = JsonUtility.FromJson<Random.State>(json);
+                Random.state = LastSeed;
+            }
+        }
+        else
+        {
+            LastSeed = Random.state;
+        }
+#endif
 
         WorldData result = new WorldData();
         Info = new WorldInfo();
@@ -163,17 +195,23 @@ public class WorldGenerator : MonoBehaviour
             processed.Clear();
             processed.AddRange(locked);
 
-            var nextKey = Info.Keys.Pop();
             var next = FindFurthest(bossCell, ref processed);
 
-            if (furthest.Room.KeyLock != null
-            || next.Room.KeyPickup != null)
-                continue;
+            if (furthest.Room != next.Room
+            && furthest.Room.KeyLock == null
+            && next.Room.KeyPickup == null 
+            && furthest.Room != data.FirstRoom
+            && next.Room != data.FirstRoom
+            && !furthest.Room.IsMainRoom
+            && !next.Room.IsMainRoom)
+            {
+                var nextKey = Info.Keys.Pop();
+                    furthest.Room.KeyLock = nextKey.Key;
+                    next.Room.KeyPickup = nextKey.Key;
+            }
 
-            furthest.Room.KeyLock = nextKey.Key;
-            next.Room.KeyPickup = nextKey.Key;
-
-            locked.Add(furthest.Room);
+            if(!locked.Contains(furthest.Room))
+                locked.Add(furthest.Room);
 
             furthest = next;
         }
@@ -210,7 +248,7 @@ public class WorldGenerator : MonoBehaviour
         return result;
     }
 
-    private void ProcessRooms(ref WorldData world, WorldData.RoomCell cell, int length)
+    private void BuildChildRooms(ref WorldData world, WorldData.RoomCell cell, int length)
     {
         var room = cell.Reference;
         room.IsMainRoom = !Info.HasBoss;
@@ -218,141 +256,60 @@ public class WorldGenerator : MonoBehaviour
         length = room.IsMainRoom ? CorridorLength : length - 1;
 
         int possibleCount;
-        var potentialDoors = CheckFreeConnections(ref world, out possibleCount, cell);
+        List<Room.DoorDirection> directions = CheckFreeConnections(ref world, out possibleCount, cell);
         int roomCount = Mathf.Min(possibleCount, Info.RoomsLeft);
-        
-        IList<int> directionList = new List<int>() { 0, 1, 2, 3 };
 
-        while (roomCount > 0 && Info.RoomsLeft > 0 && potentialDoors != Room.DoorDirection.None && length > 0)
+        while (roomCount > 0 && Info.RoomsLeft > 0 && directions.Any() && length > 0)
         {
-            int index = Random.Range(0, directionList.Count);
-            int dir = directionList[index];
+            int index = Random.Range(0, directions.Count);
+            Room.DoorDirection dir = directions[index];
+            
+            roomCount--;
+            Info.RoomsLeft--;
 
-            switch (dir)
+            directions.RemoveAt(index);
+
+            var newRoom = BuildRoomsRecurrent(ref world, room.MapPosition + Room.RoomOffset[dir], length);
+            room.SetConnection(dir, newRoom, cell);
+
+            if (!allowLoops)
             {
-            case 0:
-                if ((potentialDoors & Room.DoorDirection.Left) != 0)
-                {
-                    potentialDoors &= ~Room.DoorDirection.Left;
-                        
-                    roomCount--;
-                    Info.RoomsLeft--;
-                    directionList.RemoveAt(index);
-                        
-                    var newRoom = BuildRoomsRecurrent(ref world, room.MapPosition + new Room.MapPos(-1, 0), length);
-                    //newRoom.Reference.SetConnection(Room.InverseDirection[Room.DoorDirection.Left], cell);
-                    room.SetConnection(Room.DoorDirection.Left, newRoom, cell);
-                }
-                break;
-            case 1:
-                if ((potentialDoors & Room.DoorDirection.Right) != 0)
-                {
-                    potentialDoors &= ~Room.DoorDirection.Right;
-                        
-                    roomCount--;
-                    Info.RoomsLeft--;
-                    directionList.RemoveAt(index);
-
-                    var newRoom = BuildRoomsRecurrent(ref world, room.MapPosition + new Room.MapPos(1, 0), length);
-                    //newRoom.Reference.SetConnection(Room.InverseDirection[Room.DoorDirection.Right], cell);
-                    room.SetConnection(Room.DoorDirection.Right, newRoom, cell);
-                }
-                break;
-            case 2:
-                if ((potentialDoors & Room.DoorDirection.Down) != 0)
-                {
-                    potentialDoors &= ~Room.DoorDirection.Down;
-                        
-                    roomCount--;
-                    Info.RoomsLeft--;
-                    directionList.RemoveAt(index);
-
-                    var newRoom = BuildRoomsRecurrent(ref world, room.MapPosition + new Room.MapPos(0, -1), length);
-                    //newRoom.Reference.SetConnection(Room.InverseDirection[Room.DoorDirection.Down], cell);
-                    room.SetConnection(Room.DoorDirection.Down, newRoom, cell);
-                }
-                break;
-            case 3:
-                if ((potentialDoors & Room.DoorDirection.Up) != 0)
-                {
-                    potentialDoors &= ~Room.DoorDirection.Up;
-                        
-                    roomCount--;
-                    Info.RoomsLeft--;
-                    directionList.RemoveAt(index);
-
-                    var newRoom = BuildRoomsRecurrent(ref world, room.MapPosition + new Room.MapPos(0, 1), length);
-                    //newRoom.Reference.SetConnection(Room.InverseDirection[Room.DoorDirection.Up], cell);
-                    room.SetConnection(Room.DoorDirection.Up, newRoom, cell);
-                }
-                break;
+                directions = CheckFreeConnections(ref world, out possibleCount, cell);
+                roomCount = Mathf.Min(possibleCount, Info.RoomsLeft);
             }
         }
     }
 
     private WorldData.RoomCell BuildRoomsRecurrent(ref WorldData world, Room.MapPos pos, int length)
     {
-        RoomInfo roomInfo = Info.RoomsLeft != world.RoomCount ? RandomizePrefab(ref world) 
-            : new RoomInfo() {Prefab = FirstRoom, Type = Room.RoomType.Normal};
-        
-        var go = Instantiate(roomInfo.Prefab, WorldParent) as GameObject;
-        var room = go.GetComponent<Room>();
-            room.MapPosition = pos;
-            room.gameObject.SetActive(false);
-
-        var cell = new WorldData.RoomCell(roomInfo.Type, room);
-
-        /*if (roomInfo.Type == Room.RoomType.Boss)
+        var cell = world.RoomMap[pos.x][pos.y];
+        if (cell.IsEmpty())
         {
-            room.KeyLock = new Door.Key() {color = Color.red};
-            Info.Keys.Push(new KeyInfo() { Key = room.KeyLock, HasLock = true});
+            RoomInfo roomInfo = Info.RoomsLeft != world.RoomCount ? RandomizePrefab(ref world)
+                : new RoomInfo() { Prefab = FirstRoom, Type = Room.RoomType.Normal };
 
-            for (int i = 0; i < Info.KeysCount; i++)
-            {
-                var key = Keys[i];
+            var go = Instantiate(roomInfo.Prefab, WorldParent) as GameObject;
+            var room = go.GetComponent<Room>();
+                room.MapPosition = pos;
+                room.gameObject.SetActive(false);
 
-                Info.Keys.Push(new KeyInfo() { Key = key });
-            }
-        }*/
+            cell = new WorldData.RoomCell(roomInfo.Type, room);
 
-        world.RoomMap[pos.x][pos.y] = cell;
-        world.AllRooms.Add(room);
-        
-        if (Info.RoomsLeft > 0 && roomInfo.Type != Room.RoomType.Boss)
-        {
-            ProcessRooms(ref world, cell, length);
+            world.RoomMap[pos.x][pos.y] = cell;
+            world.AllRooms.Add(room);
         }
 
-        /*if (Info.HasBoss
-        && roomInfo.Type != Room.RoomType.Boss
-        && room != world.FirstRoom
-        && Info.Keys.Any())
+        if (Info.RoomsLeft > 0 && cell.Type != Room.RoomType.Boss)
         {
-            var keyInfo = Info.Keys.Peek();
-            if (!keyInfo.HasPickup)
-            {
-                keyInfo.HasPickup = true;
-                room.KeyPickup = keyInfo.Key;
-            }
-
-            if (!keyInfo.HasLock && !room.IsMainRoom)
-            {
-                keyInfo.HasLock = true;
-                room.KeyLock = keyInfo.Key;
-            }
-
-            if (keyInfo.HasLock && keyInfo.HasPickup)
-            {
-                Info.Keys.Pop();
-            }
-        }*/
+            BuildChildRooms(ref world, cell, length);
+        }
 
         return cell;
     }
     
-    private Room.DoorDirection CheckFreeConnections(ref WorldData world, out int count, WorldData.RoomCell cell)
+    private List<Room.DoorDirection> CheckFreeConnections(ref WorldData world, out int count, WorldData.RoomCell cell)
     {
-        Room.DoorDirection result = Room.DoorDirection.None;
+        List<Room.DoorDirection> result = new List<Room.DoorDirection>();
         count = 0;
 
         foreach (Room.DoorDirection dir in Room.AllDirs)
@@ -362,7 +319,7 @@ public class WorldGenerator : MonoBehaviour
             if (room.Type == Room.RoomType.Empty
             && !cell.Reference.HasEdge(world, dir))
             {
-                result |= dir;
+                result.Add(dir);
                 count++;
             }
         }

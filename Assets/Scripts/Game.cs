@@ -4,6 +4,8 @@ using System.Linq;
 
 public class Game : MonoBehaviour
 {
+    public MenuController Controller;
+    public ScoreManager Score;
     public WorldController World;
     public MusicController Music;
     public MiniMapController MiniMap;
@@ -15,8 +17,20 @@ public class Game : MonoBehaviour
     
     private GameState CurrentState;
 
+    public static Game Instance;
+
+    public bool IsPlaying()
+    {
+        return CurrentState is PlayState;
+    }
+
     void Start()
     {
+        Instance = this;
+
+        if (!Controller)
+            Controller = FindObjectOfType<MenuController>();
+
         if (!Music)
             Music = FindObjectOfType<MusicController>();
 
@@ -28,6 +42,12 @@ public class Game : MonoBehaviour
 
         if (!Player)
             Player = FindObjectOfType<PlayerController>();
+
+        if (!Score)
+            Score = FindObjectOfType<ScoreManager>();
+
+        if (Score)
+            Score.Game = this;
 
         States = new List<GameState>();
 
@@ -57,5 +77,37 @@ public class Game : MonoBehaviour
         if(CurrentState) CurrentState.CallEnd();
             CurrentState = state;
         if(CurrentState) CurrentState.CallStart();
+    }
+
+    public void OnLevelLoaded()
+    {
+        var allObjs = FindObjectsOfType<GameObject>();
+        foreach (GameObject allObj in allObjs)
+        {
+            var allLevelDependables = allObj.GetInterfaces<ILevelDependable>();
+            if (allLevelDependables != null && allLevelDependables.Length > 0)
+            {
+                foreach (ILevelDependable dependable in allLevelDependables)
+                {
+                    dependable.OnLevelLoaded();
+                }
+            }
+        }
+    }
+
+    public void OnLevelCleanUp()
+    {
+        var allObjs = FindObjectsOfType<GameObject>();
+        foreach (GameObject allObj in allObjs)
+        {
+            var allLevelDependables = allObj.GetInterfaces<ILevelDependable>();
+            if (allLevelDependables != null && allLevelDependables.Length > 0)
+            {
+                foreach (ILevelDependable dependable in allLevelDependables)
+                {
+                    dependable.OnLevelCleanUp();
+                }
+            }
+        }
     }
 }

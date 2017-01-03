@@ -72,6 +72,11 @@ public class Room : MonoBehaviour
             y = yPos;
         }
 
+        public override string ToString()
+        {
+            return "(" + x + ", " + y + ")";
+        }
+
         public static MapPos operator+(MapPos first, MapPos second)
         {
             return new MapPos(first.x + second.x, first.y + second.y);
@@ -147,7 +152,7 @@ public class Room : MonoBehaviour
 
     public void SetConnection(DoorDirection direction, WorldData.RoomCell cell, WorldData.RoomCell thisCell)
     {
-        if (cell.Type == RoomType.Empty || cell.Reference == null)
+        if (cell.Type == RoomType.Empty || cell.Reference == null || direction == DoorDirection.None)
             return;
 
         Connections[direction] = cell;

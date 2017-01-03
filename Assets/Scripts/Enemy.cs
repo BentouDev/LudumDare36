@@ -29,6 +29,8 @@ public class Enemy : MonoBehaviour, IDamageable
     protected bool WasAlive;
     protected bool CanMove;
 
+    private float YControl;
+
     void OnDestroy()
     {
         Sound.Audio.Stop();
@@ -50,6 +52,8 @@ public class Enemy : MonoBehaviour, IDamageable
         yield return new WaitForSeconds(StartDelayTime);
 
         CanMove = true;
+
+        YControl = transform.position.y;
     }
 
     protected IEnumerator WaitDisable()
@@ -61,16 +65,20 @@ public class Enemy : MonoBehaviour, IDamageable
 
     void Update()
     {
+        transform.position = new Vector3(transform.position.x, YControl, transform.position.z);
+
         if (CanMove && Pawn && IsAlive)
         {
             var distance = transform.position - Pawn.transform.position;
+            var flatDistance = new Vector3(distance.x, 0, distance.z);
+
             if (Time.time - LastShootTime > ShootDelay)
             {
-                Shoot(-distance.normalized);
+                Shoot(-flatDistance.normalized);
             }
 
-            transform.forward = distance.normalized;
-            Rigidbody.velocity = -distance.normalized * Speed;
+            transform.forward = flatDistance.normalized;
+            Rigidbody.velocity = -flatDistance.normalized * Speed;
         }
         else
         {
@@ -79,6 +87,8 @@ public class Enemy : MonoBehaviour, IDamageable
 
         if (!IsAlive && WasAlive)
         {
+            Game.Instance.Score.OnEnemyKilled();
+
             StopAllCoroutines();
 
             var renderers = GetComponentsInChildren<MeshRenderer>();
@@ -97,6 +107,8 @@ public class Enemy : MonoBehaviour, IDamageable
     public void TakeDamage(int damage)
     {
         Health -= damage;
+
+        Game.Instance.Score.OnEnemyDamaged(damage);
 
         var renderers = GetComponentsInChildren<MeshRenderer>();
         foreach (var renderer in renderers)

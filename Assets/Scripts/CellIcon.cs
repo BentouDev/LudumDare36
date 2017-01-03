@@ -6,6 +6,7 @@ using System.Collections.Generic;
 public class CellIcon : MonoBehaviour
 {
     public Image Content;
+    public Text Text;
     public Image Left;
     public Image Right;
     public Image Down;
