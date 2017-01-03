@@ -1,6 +1,6 @@
 # Tank in dungeon #
-|*autorzy*|Jakub Bentkowski|Łukasz Pyrzyk|Michał Wiśniowski|Krzysztof Smosa|
-|-|-|-|-|-|
+| Autorzy 	| Jakub Bentkowski 	| Łukasz Pyrzyk 	| Michał Wiśniowski 	| Krzysztof Smosna 	|
+|---------	|------------------	|---------------	|-------------------	|-----------------	|
 
 # 1. Opis
 Tank in dungeon jest grą akcji czasu rzeczywistego z trójwymiarową grafiką. 
