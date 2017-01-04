@@ -213,14 +213,14 @@ Ze względów bezpieczeństwa instancja gry nie komunikuje się bezpośrednio z 
 Elementem zapewniającym komunikację jest API opartę o styl ``REST``. System został napisany w języku ``Go``, potocznie zwalynm ``Golang``. Jest to nowoczesny język programowania, którego celem jest dostarczenie wysokiej wydajności oraz natywnej kompilacji.
 Dostępne są dwa rodzaje endpointów - ``POST`` i ``GET`` dla każdej z kolekcji wyników.
 
-```
-http://domain.com/timeresults/N // GET, gdzie N to liczba najlepszych wyników
-http://domain.com/timeresults // POST, gdzie ciało to struktura danych w formacie JSON 
+```ini
+http://domain.com/timeresults/N # GET, gdzie N to liczba najlepszych wyników
+http://domain.com/timeresults # POST, gdzie ciało to struktura danych w formacie JSON 
 ```
 
-```
-http://domain.com/scoreresults/N // GET, gdzie N to liczba najlepszych wyników
-http://domain.com/scoreresults // POST, gdzie ciało to struktura danych w formacie JSON 
+```ini
+http://domain.com/scoreresults/N # GET, gdzie N to liczba najlepszych wyników
+http://domain.com/scoreresults # POST, gdzie ciało to struktura danych w formacie JSON 
 ```
 
 Dane przesyłane są w formacie JSON
