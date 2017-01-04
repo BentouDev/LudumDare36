@@ -1,6 +1,6 @@
 # Tank in dungeon #
-|*autorzy*|Jakub Bentkowski|Łukasz Pyrzyk|Michał Wiśniowski|Krzysztof Smosa|
-|-|-|-|-|-|
+| Autorzy 	| Jakub Bentkowski 	| Łukasz Pyrzyk 	| Michał Wiśniowski 	| Krzysztof Smosna 	|
+|---------	|------------------	|---------------	|-------------------	|-----------------	|
 
 # 1. Opis
 Tank in dungeon jest grą akcji czasu rzeczywistego z trójwymiarową grafiką. 
@@ -8,7 +8,7 @@ Podczas gry gracz pokonuje proceduralnie generowane światy, pokonuje znajdując
 przeciwników, za co otrzymuje punkty oraz zdobywa bonusy ułatwiające mu rozgrywkę.
 
 Gra posiada dwa tryby rozgrywki:
-- Time atttack - liczy się jak najlepszy czas
+- Time attack - liczy się jak najlepszy czas
 - Score attack - liczy się jak najwyższa ilość punktów
 
 W grze zaimplementowane jest wysyłanie wyników na serwer i globalny ranking najlepszych graczy.
@@ -203,3 +203,44 @@ W grze wyróżniamy kilka rodzai przedmiotów bonusowych.
 - zasady
     - podniesiona pokazuje na mapie gdzie znajdują się klucze
     - efekt traci się po przejściu przez portal do innego świata
+
+# 4. Baza danych
+Gra współpracuje z nierelacyjną (NoSQL) bazą danych ``MongoDB``, która uruchomiona jest na systemie Linux w chmurze ``Microsoft Azure``.
+Baza przetrzymuje dwie kolekcje danych - wyniki dla trybu ``Time attack`` i ``Score attack``.
+
+# 5. API
+Ze względów bezpieczeństwa instancja gry nie komunikuje się bezpośrednio z bazą danych. 
+Elementem zapewniającym komunikację jest API opartę o styl ``REST``. System został napisany w języku ``Go``, potocznie zwalynm ``Golang``. Jest to nowoczesny język programowania, którego celem jest dostarczenie wysokiej wydajności oraz natywnej kompilacji.
+Dostępne są dwa rodzaje endpointów - ``POST`` i ``GET`` dla każdej z kolekcji wyników.
+
+```
+http://domain.com/timeresults/N // GET, gdzie N to liczba najlepszych wyników
+http://domain.com/timeresults // POST, gdzie ciało to struktura danych w formacie JSON 
+```
+
+```
+http://domain.com/scoreresults/N // GET, gdzie N to liczba najlepszych wyników
+http://domain.com/scoreresults // POST, gdzie ciało to struktura danych w formacie JSON 
+```
+
+Dane przesyłane są w formacie JSON
+```json
+{
+    "PlayerName": "Adam",
+    "Score": 100,
+    "Time": 71
+}
+```
+
+# 6. Deployment
+W celu zapewnienia ``Continuous Integration`` (CI), API jak i baza danych jest uruchomiona na Linuxie poprzez system konteneryzacji ``Docker``. Pozwala on na odizolowanie od siebie usług, swobodne wdrażanie nowej wersji oraz monitorowanie zużycia zasobów.
+
+Obraz MongoDB jest dostarczony przez twórców bazy danych. Aby uruchomić kontener z MongoDB, należy wykonać polecenie
+```bash
+docker run -d mongo
+```
+
+API dla ``Tank in dungeon`` jest również dostępne dla Dockera,
+```bash
+docker run -d lukaszpyrzyk/tankindungeonapi
+``` 
