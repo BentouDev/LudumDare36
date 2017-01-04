@@ -1,5 +1,5 @@
 # Tank in dungeon #
-| Autorzy 	| Jakub Bentkowski 	| Łukasz Pyrzyk 	| Michał Wiśniowski 	| Krzysztof Smosna 	|
+| *Autorzy* 	| Jakub Bentkowski 	| Łukasz Pyrzyk 	| Michał Wiśniowski 	| Krzysztof Smosna 	|
 |---------	|------------------	|---------------	|-------------------	|-----------------	|
 
 # 1. Opis
@@ -206,7 +206,7 @@ W grze wyróżniamy kilka rodzai przedmiotów bonusowych.
 
 # 4. Globalny ranking
 ## 4.1. Baza danych
-Gra przechowuje globalny ranking najlepszych wyników z nierelacyjną (NoSQL) bazą danych ``MongoDB``, która uruchomiona jest na systemie Linux w chmurze ``Microsoft Azure``.
+Gra przechowuje globalny ranking najlepszych wyników w nierelacyjnej (NoSQL) bazie danych ``MongoDB``, która uruchomiona jest na systemie Linux w chmurze ``Microsoft Azure``.
 Baza przetrzymuje dwie kolekcje danych - wyniki dla trybu ``Time attack`` i ``Score attack``.
 
 ## 4.2. API
