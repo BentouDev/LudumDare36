@@ -181,34 +181,35 @@ Aktorzy istnieją jedynie w podrzędnej warstwie przestrzeni gry, ``Pokoju``.
 
 W grze wyróżniamy kilka rodzai przedmiotów bonusowych. 
 
-#### 3.6.1 serca
+#### 3.6.1. serca
 - atrybuty:
     - przywracana ilość punktów życia
 - zasady
     - podniesione dodają postaci gracza daną ilość punktów życia
     
-#### 3.6.2 klucze
+#### 3.6.2. klucze
 - atrybuty:
     - klucz
 - zasady
     - dodaje postaci gracza swój klucz
     - klucz traci się po przejściu przez portal do innego świata
 
-#### 3.6.3 mapa
+#### 3.6.3. mapa
 - zasady
     - podniesiona odkrywa graczowi mapę podziemi, oznaczając nieodwiedzone pokoje
     - efekt traci się po przejściu przez portal do innego świata
 
-#### 3.6.3 kompas
+#### 3.6.3. kompas
 - zasady
     - podniesiona pokazuje na mapie gdzie znajdują się klucze
     - efekt traci się po przejściu przez portal do innego świata
 
-# 4. Baza danych
-Gra współpracuje z nierelacyjną (NoSQL) bazą danych ``MongoDB``, która uruchomiona jest na systemie Linux w chmurze ``Microsoft Azure``.
+# 4. Globalny ranking
+## 4.1. Baza danych
+Gra przechowuje globalny ranking najlepszych wyników z nierelacyjną (NoSQL) bazą danych ``MongoDB``, która uruchomiona jest na systemie Linux w chmurze ``Microsoft Azure``.
 Baza przetrzymuje dwie kolekcje danych - wyniki dla trybu ``Time attack`` i ``Score attack``.
 
-# 5. API
+## 4.2. API
 Ze względów bezpieczeństwa instancja gry nie komunikuje się bezpośrednio z bazą danych. 
 Elementem zapewniającym komunikację jest API opartę o styl ``REST``. System został napisany w języku ``Go``, potocznie zwalynm ``Golang``. Jest to nowoczesny język programowania, którego celem jest dostarczenie wysokiej wydajności oraz natywnej kompilacji.
 Dostępne są dwa rodzaje endpointów - ``POST`` i ``GET`` dla każdej z kolekcji wyników.
@@ -232,7 +233,7 @@ Dane przesyłane są w formacie JSON
 }
 ```
 
-# 6. Deployment
+## 4.3. Deployment
 W celu zapewnienia ``Continuous Integration`` (CI), API jak i baza danych jest uruchomiona na Linuxie poprzez system konteneryzacji ``Docker``. Pozwala on na odizolowanie od siebie usług, swobodne wdrażanie nowej wersji oraz monitorowanie zużycia zasobów.
 
 Obraz MongoDB jest dostarczony przez twórców bazy danych. Aby uruchomić kontener z MongoDB, należy wykonać polecenie
