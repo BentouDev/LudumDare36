@@ -40,7 +40,8 @@ Dana komórka może być pusta, bądź zawierać instancję pokoju.
     - aktywny
     - zaliczony
 - Asocjacje / Kompozycja (?)
-    - pokoje - ilość określona wzorem [*jakiśtam wzór z opisem*]
+    - pokoje - dokładna ilość wyznaczana jest za pomocą algorytmu generującego świat,
+     opisanego w sekcji ``8.``
     
 ### 2.2 Pokój
 Warstwą podrzędną jest ``pokój``. Pokój posiada dwa wymiary, x oraz y określające jego rozmiar
@@ -62,20 +63,23 @@ Aktorzy występują jedynie w tej warstwie przestrzeni.
     - przeciwnicy - od ``0`` do ``N``
     - drzwi - od ``1`` do ``4``
     - przedmiot bonusowy - od ``0`` do ``1``
-- Zasady
-    - początkowo wszystkie drzwi w pokoju są zamknięte
-    - żaden z aktorów nie może istnieć poza granicami pokoju
-    - drzwi mogą istnieć tylko na z góry wyznaczonych pozycjach w pokoju
-    - wszystkie drzwi w danym pokoju pozostają zamknięte dopóki żyje 
-    przynajmniej ``1`` przeciwnik
-    - wszystkie drzwi nie posiadające klucza otwierają się w momencie śmierci
-     ostatniego przeciwnika bądź w przypadku ich braku
 
-## Stan początkowy gry
+## Zasady Globalne
+
+- aktor który utraci wszystkie punkty życia usuwany jest z planszy
+- początkowo wszystkie drzwi w pokoju są zamknięte
+- żaden z aktorów nie może istnieć poza granicami pokoju
+- drzwi mogą istnieć tylko na z góry wyznaczonych pozycjach w pokoju
+- wszystkie drzwi w danym pokoju pozostają zamknięte dopóki żyje 
+przynajmniej ``1`` przeciwnik
+- wszystkie drzwi nie posiadające klucza otwierają się w momencie śmierci
+    ostatniego przeciwnika bądź w przypadku ich braku
+
+### Stan początkowy gry
 Gra rozpoczyna się w tzw. pokoju startowym, w którym początkowo znajduje się postać gracza.
 Gracz na starcie otrzymuje ``6`` punktów życia i nie posiada żadnych bonusów.
 
-## Rozgrywka
+### Rozgrywka
 - Przemieszczanie się pomiędzy pokojami odbywa się za pomocą ``drzwi``
 - Każdy pokój ma z góry wyznaczone ``4`` pozycje w których potencjale drzwi mogą się znajdować.
 Są one odpowiednio w północnej, wchodniej, zachodniej oraz południowej częsci pokoju.
@@ -85,11 +89,11 @@ umieszczane wogóle.
 - Gdy postać gracza spełnia określone zasadami wymagania oraz zbliży się dostatecznie do ``drzwi``
 zostanie przeniesiona do sąsiadującego z danej strony pokoju.
 
-## Śmierć gracza
+### Śmierć gracza
 W przypadku otrzymania ilości obrażeń przekraczającej obecną wartość punktów życia postać gracza 
 jest usuwana z obecnego pokoju co kończy rozgrywkę ze skutkiem zalieżnym od danego trybu gry.
 
-## Koniec rozgrywki
+### Koniec rozgrywki
 Zasady dotyczące zwycięstwa bądź przegranej w grze zależą od danego trybu gry: 
 
 ## Tryby gry
@@ -292,7 +296,7 @@ API dla ``Tank in dungeon`` jest również dostępne dla Dockera,
 docker run -d lukaszpyrzyk/tankindungeonapi
 ``` 
 
-# 8. Generowanie proceduralne planszt
+# 8. Generowanie proceduralne plansz
 
 W grze zaimplementowany jest algorytm generujący proceduralne planszę.
 
