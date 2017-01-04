@@ -97,7 +97,7 @@ Celem trybu jest pokonanie ``10`` światów w jak najkrótszym czasie.
 
 Gra kończy się na jeden z dwóch sposobów :
   - ``przegraną``, w przypadku śmierci postaci gracza
-  - ``zwyciestwiem``, w przypadku dotarcia przez postać gracza do portalu
+  - ``zwycięstwem``, w przypadku dotarcia przez postać gracza do portalu
   znajdującego się w ``10`` świecie
 
 W przypadku zwycięstwa podliczany jest czas jaki uzyskał gracz.
