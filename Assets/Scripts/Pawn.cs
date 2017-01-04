@@ -4,6 +4,8 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody))]
 public class Pawn : MonoBehaviour, IDamageable
 {
+    public bool drawDebug;
+
     public Transform BodyBone;
     public Transform HeadBone;
 
@@ -12,11 +14,7 @@ public class Pawn : MonoBehaviour, IDamageable
 
     public GameObject BulletPrefab;
 
-    public bool drawDebug;
-
     private PlayerController.InputData CurrentInput;
-
-    public bool IsAlive { get; private set; }
 
     public Rigidbody Rigidbody;
 
@@ -31,8 +29,10 @@ public class Pawn : MonoBehaviour, IDamageable
     private float LastShootTime;
     public float ShootPerSec;
     public float BulletStartDistance;
-    
+
     private float ShootDelay { get { return 1.0f / ShootPerSec; } }
+
+    public bool IsAlive { get; private set; }
 
     private List<Door.Key> Keys = new List<Door.Key>();
 
