@@ -1,13 +1,30 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class WorldController : MonoBehaviour
 {
+    [System.Serializable]
+    public struct PickupInfo
+    {
+        [SerializeField]
+        public GameObject PickupPrefab;
+
+        [SerializeField]
+        public bool Singleton;
+
+        [SerializeField]
+        public int Chance;
+
+        [HideInInspector]
+        public int SpawnCount;
+    }
+
     [Header("Pickups")]
     public GameObject KeyPickupPrefab;
     public GameObject DeepDoorPrefab;
 
-    public List<GameObject> HealthPrefab;
+    public List<PickupInfo> OtherPickups;
 
     [Header("Doors")]
     public GameObject DoorPrefab;
@@ -27,6 +44,11 @@ public class WorldController : MonoBehaviour
     private bool hasWayToBoss;
     private bool hasWayFromBoss;
 
+    public int PickupChanceCount
+    {
+        get { return OtherPickups.Sum(o => o.Chance); }
+    }
+    
     public Room GetCurrentRoom()
     {
         return CurrentRoom;
@@ -37,6 +59,13 @@ public class WorldController : MonoBehaviour
         Game = game;
         Data = data;
         ActivateRoom(Data.FirstRoom, Vector3.zero);
+
+        for (int i = 0; i < OtherPickups.Count; i++)
+        {
+            var pickup = OtherPickups[i];
+                pickup.SpawnCount = 0;
+            OtherPickups[i] = pickup;
+        }
     }
 
     public void ActivateRoom(Room room, Vector3 position)
@@ -120,11 +149,7 @@ public class WorldController : MonoBehaviour
             float random = Random.Range(0.0f, 1.0f);
             if (random > 0.5f)
             {
-                Game.Music.PlayMystery();
-
-                int index = Random.Range(0, HealthPrefab.Count);
-                var go = Instantiate(HealthPrefab[index], CurrentRoom.transform) as GameObject;
-                go.transform.position = CurrentRoom.transform.position;
+                SpawnPickup();
             }
         }
         else
@@ -144,16 +169,45 @@ public class WorldController : MonoBehaviour
                 float random = Random.Range(0.0f, 1.0f);
                 if (random > 0.5f)
                 {
-                    Game.Music.PlayMystery();
-
-                    int index = Random.Range(0, HealthPrefab.Count);
-                    var go = Instantiate(HealthPrefab[index], CurrentRoom.transform) as GameObject;
-                    go.transform.position = CurrentRoom.transform.position;
+                    SpawnPickup();
                 }
             }
         }
         
         UnlockDoors();
+    }
+
+    private void SpawnPickup()
+    {
+        var prefab = RandomPickup();
+        if (prefab != null)
+        {
+            var go = Instantiate(prefab, CurrentRoom.transform) as GameObject;
+            go.transform.position = CurrentRoom.transform.position;
+
+            Game.Music.PlayMystery();
+        }
+    }
+
+    private GameObject RandomPickup()
+    {
+        float random = Random.Range(0.0f, 1.0f);
+
+        var pickup = OtherPickups.FirstOrDefault(o => o.Chance / (float) PickupChanceCount > random && (!o.Singleton || o.SpawnCount == 0));
+
+        if (pickup.Singleton && pickup.SpawnCount > 0)
+            return null;
+
+        if (pickup.PickupPrefab != null)
+        {
+            var index = OtherPickups.IndexOf(pickup);
+            pickup.SpawnCount++;
+            OtherPickups[index] = pickup;
+            
+            return pickup.PickupPrefab;
+        }
+
+        return null;
     }
 
     private void UnlockDoors()
