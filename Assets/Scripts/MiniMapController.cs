@@ -90,29 +90,33 @@ public class MiniMapController : MonoBehaviour
                 img.gameObject.SetActive(false);
             }
         }
-        
+
+        icon.Background.sprite = NormalSprite;
+
         if (DisplayKeys && icon.Cell.Reference.KeyPickup != null)
         {
             icon.Content.sprite = KeySprite;
+            icon.Content.color = Color.white;
         }
         else
         {
-            icon.Content.sprite = NormalSprite;
+            icon.Content.sprite = null;
+            icon.Content.color = Color.clear;
         }
         
         if (icon.Cell.Reference == game.World.GetCurrentRoom())
         {
-            icon.Content.color = CurrentColor;
+            icon.Background.color = CurrentColor;
         }
         else
         {
             if (icon.Cell.Type == Room.RoomType.Boss)
             {
-                icon.Content.color = Color.red;
+                icon.Background.color = Color.red;
             }
             else
             {
-                icon.Content.color = UndiscoveredColor;
+                icon.Background.color = UndiscoveredColor;
             }
         }
     }
