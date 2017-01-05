@@ -20,10 +20,17 @@ public class Highscores : MenuBase
     {
         gameObject.SetActive(true);
 
-        Game.Instance.Score.OnHighscoreDownloaded += OnScoresDownloaded;
-        Game.Instance.Score.OnNetworkError += OnNetworkError;
-        
-        Game.Instance.Score.DownloadHighscores(ScoresToLoad, GameModeHolder.Instance.CurrentGameMode);
+        if (Application.internetReachability == NetworkReachability.NotReachable)
+        {
+            OnNoInternetConnection();
+        }
+        else
+        {
+            Game.Instance.Score.OnHighscoreDownloaded += OnScoresDownloaded;
+            Game.Instance.Score.OnNetworkError += OnNetworkError;
+
+            Game.Instance.Score.DownloadHighscores(ScoresToLoad, GameModeHolder.Instance.CurrentGameMode);
+        }
     }
 
     public override void OnEnd()
@@ -41,14 +48,6 @@ public class Highscores : MenuBase
         currentScores.Clear();
     }
 
-    private void OnNetworkError(string message)
-    {
-        Game.Instance.MessageMenu.SwitchTo (
-            "Unable to download Highscores\ndue to network error",
-            GoToMainMenu
-        );
-    }
-
     private void OnScoresDownloaded(List<ScoreManager.OnlineScore> onlineScores)
     {
         StartCoroutine(AnimShow(AnimTime));
@@ -64,5 +63,21 @@ public class Highscores : MenuBase
 
             currentScores.Add(go);
         }
+    }
+
+    private void OnNoInternetConnection()
+    {
+        Game.Instance.MessageMenu.SwitchTo(
+           "No internet connection!",
+           GoToMainMenu
+       );
+    }
+
+    private void OnNetworkError(string message)
+    {
+        Game.Instance.MessageMenu.SwitchTo(
+            "Unable to download Highscores\ndue to network error",
+            GoToMainMenu
+        );
     }
 }
