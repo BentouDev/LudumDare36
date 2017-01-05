@@ -40,15 +40,7 @@ public class Game : MonoBehaviour
 
     public void SetGameMode(GameMode mode)
     {
-        var holder = FindObjectOfType<GameModeHolder>();
-        if (holder == null)
-        {
-            var go = new GameObject("GameModeHolder");
-            holder = go.AddComponent<GameModeHolder>();
-            GameModeHolder.Instance = holder;
-        }
-
-        holder.CurrentGameMode = mode;
+        GameModeHolder.SetGameMode(mode);
     }
     
     public bool IsPlaying()
@@ -56,7 +48,7 @@ public class Game : MonoBehaviour
         return CurrentState is PlayState;
     }
 
-    void Start()
+    private void SetupProperties()
     {
         Instance = this;
 
@@ -84,9 +76,12 @@ public class Game : MonoBehaviour
         if (Score)
             Score.Game = this;
 
-        if(Music)
+        if (Music)
             Music.Reset();
+    }
 
+    private void SetupStates()
+    {
         States = new List<GameState>();
 
         var states = FindObjectsOfType<GameState>();
@@ -95,17 +90,32 @@ public class Game : MonoBehaviour
             state.Init(this);
             States.Add(state);
         }
-        
+    }
+
+    private void StartGame()
+    {
         CurrentState = States.FirstOrDefault(s => s is StartState);
 
-        if(CurrentState)
+        if (CurrentState)
+        {
             CurrentState.CallStart();
+        }
+    }
+
+    void Start()
+    {
+        SetupProperties();
+        SetupStates();
+        
+        StartGame();
     }
 
     void Update()
     {
-        if(CurrentState)
+        if (CurrentState)
+        {
             CurrentState.CallUpdate();
+        }
     }
 
     public void SwitchState<T>() where T : GameState
