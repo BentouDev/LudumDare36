@@ -29,7 +29,7 @@ umieszczonych na dwuwymiarowej, ciągłej planszy, o minimalnym rozmiarze 5 na 5
 Dana komórka może być pusta, bądź zawierać instancję pokoju.
 
 - Liczebność - w danej chwili ``1``, w ciągu gry ilość światów będzie zależała od trybu gry. 
-    - W trybie ``Time attack`` gracz będzie pokonywał od ``1`` do ``10`` światów.
+    - W trybie ``Time attack`` gracz będzie pokonywał od ``1`` do ``5`` światów.
     - W trybie ``Score`` gracz będzie pokonywał od ``1`` do ``N`` światów.
 - Atrybuty
     - rozmiar planszy w wymiarze ``x``, większe bądź równe ``5``
@@ -98,12 +98,12 @@ Zasady dotyczące zwycięstwa bądź przegranej w grze zależą od danego trybu 
 
 ## Tryby gry
 ### Time attack
-- Celem trybu jest pokonanie ``10`` światów w jak najkrótszym czasie.
+- Celem trybu jest pokonanie ``5`` światów w jak najkrótszym czasie.
 
 - Gra kończy się na jeden z dwóch sposobów :
   - ``przegraną``, w przypadku śmierci postaci gracza
   - ``zwycięstwem``, w przypadku dotarcia przez postać gracza do portalu
-  znajdującego się w ``10`` świecie
+  znajdującego się w ``5`` świecie
 
 - W przypadku zwycięstwa podliczany jest czas jaki uzyskał gracz.
 - Za lepszy wynik uważa się jak najniższy czas.
