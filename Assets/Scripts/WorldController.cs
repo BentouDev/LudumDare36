@@ -35,17 +35,14 @@ public class WorldController : MonoBehaviour
     [Header("Enemies")]
     public GameObject EnemyPrefab;
 
+    private readonly List<Door> CurrentDoors = new List<Door>();
+
+    private Room CurrentRoom;
     private Game Game;
     private WorldData Data;
 
-    private Room CurrentRoom;
-    private List<Door> CurrentDoors = new List<Door>();
-
     private bool WasCleared;
-
-    private bool hasWayToBoss;
-    private bool hasWayFromBoss;
-
+    
     public int PickupChanceCount
     {
         get { return OtherPickups.Sum(o => o.Chance); }
@@ -173,8 +170,8 @@ public class WorldController : MonoBehaviour
 
     private void TryToSpawnPickup()
     {
-        float random = Random.Range(0.0f, 1.0f);
-        if (random > 1 - PickupSpawnChance)
+        float spawnChance = Random.Range(0.0f, 1.0f);
+        if (spawnChance > (1 - PickupSpawnChance))
         {
             SpawnPickup();
         }
@@ -182,22 +179,35 @@ public class WorldController : MonoBehaviour
 
     private void SpawnPickup()
     {
-        var prefab = RandomPickup();
+        var prefab = TryGetRandomPickup();
         if (prefab != null)
         {
             var go = Instantiate(prefab, CurrentRoom.transform) as GameObject;
-            go.transform.position = CurrentRoom.transform.position;
+                go.transform.position = CurrentRoom.transform.position;
 
             Game.Music.PlayMystery();
         }
     }
 
-    private GameObject RandomPickup()
+    private GameObject TryGetRandomPickup()
     {
         float random = Random.Range(0.0f, 1.0f);
+        
+        var pickup = new PickupInfo();
+        var chanceAccumulator = 0;
+        var availablePickups = OtherPickups.Where(o => (!o.Singleton || o.SpawnCount == 0)).ToList();
 
-        var pickup = OtherPickups.FirstOrDefault(o => o.Chance / (float) PickupChanceCount > random && (!o.Singleton || o.SpawnCount == 0));
+        foreach (var currentPickup in availablePickups)
+        {
+            chanceAccumulator += currentPickup.Chance;
 
+            if (chanceAccumulator/(float) PickupChanceCount > random)
+            {
+                pickup = currentPickup;
+                break;
+            }
+        }
+        
         if (pickup.Singleton && pickup.SpawnCount > 0)
             return null;
 
@@ -241,21 +251,6 @@ public class WorldController : MonoBehaviour
 
         foreach (Room.DoorDirection dir in Room.AllDirs)
         {
-            /*var cell = room.GetGlobalRoomCell(Data, dir);
-            if(cell.Type == Room.RoomType.Empty)
-                continue;
-
-            bool toBoss = cell.Type == Room.RoomType.Boss;
-            bool isFirstRoom = room == Data.FirstRoom || cell.Reference == Data.FirstRoom;
-
-            if (((isBoss || toBoss) && isFirstRoom) || (isBoss && hasWayToBoss) || (toBoss && hasWayToBoss))
-                continue;
-
-            room.HideDoorPlaceholder(dir);
-
-            hasWayToBoss |= isBoss;
-            hasWayFromBoss |= toBoss;*/
-
             var cell = room.GetConnectedRoomCell(dir);
             if (cell.Type == Room.RoomType.Empty)
                 continue;
