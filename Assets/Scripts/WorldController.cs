@@ -24,6 +24,8 @@ public class WorldController : MonoBehaviour
     public GameObject KeyPickupPrefab;
     public GameObject DeepDoorPrefab;
 
+    [Range(0.1f,1)]
+    public float PickupSpawnChance = 0.75f;
     public List<PickupInfo> OtherPickups;
 
     [Header("Doors")]
@@ -146,11 +148,7 @@ public class WorldController : MonoBehaviour
             var deepDoor = deep.GetComponentInChildren<DeepDoors>();
                 deepDoor.Init(Game);
 
-            float random = Random.Range(0.0f, 1.0f);
-            if (random > 0.5f)
-            {
-                SpawnPickup();
-            }
+            TryToSpawnPickup();
         }
         else
         {
@@ -166,15 +164,20 @@ public class WorldController : MonoBehaviour
             }
             else
             {
-                float random = Random.Range(0.0f, 1.0f);
-                if (random > 0.5f)
-                {
-                    SpawnPickup();
-                }
+                TryToSpawnPickup();
             }
         }
         
         UnlockDoors();
+    }
+
+    private void TryToSpawnPickup()
+    {
+        float random = Random.Range(0.0f, 1.0f);
+        if (random > 1 - PickupSpawnChance)
+        {
+            SpawnPickup();
+        }
     }
 
     private void SpawnPickup()
