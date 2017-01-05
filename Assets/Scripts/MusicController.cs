@@ -25,8 +25,6 @@ public class MusicController : MonoBehaviour
         Sound.SetFloat(SoundVolume, LinearToDecibel(1));
         MainMusic.SetFloat(MainMusicVolume, LinearToDecibel(1));
         DeathMusic.SetFloat(DeathMusicVolume, LinearToDecibel(0));
-
-        MainTheme.Play();
     }
 
     public void PlayMystery()
