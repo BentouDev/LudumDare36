@@ -23,10 +23,10 @@ public class PlayerScoreEntryMenu : MenuBase
 
         Clicked = false;
 
-        Game.Instance.Score.OnScoreUploaded -= ExitGame;
-        Game.Instance.Score.OnScoreUploaded += ExitGame;
+        Game.Instance.Score.OnScoreUploaded += OnScoreUploaded;
+        Game.Instance.Score.OnNetworkError += OnNetworkError;
     }
-
+    
     public void SubmitScore()
     {
         if(Clicked)
@@ -37,22 +37,28 @@ public class PlayerScoreEntryMenu : MenuBase
         
         if (NameField && !string.IsNullOrEmpty(NameField.text))
         {
-            Game.Instance.Score.UploadScore(NameField.text);
+            Game.Instance.Score.UploadScore(NameField.text, GameModeHolder.Instance.CurrentGameMode);
         }
     }
 
-    public void ExitGame()
+    public void OnScoreUploaded()
     {
+        Game.Instance.Score.OnNetworkError -= OnNetworkError;
+        Game.Instance.Score.OnScoreUploaded -= OnScoreUploaded;
         SceneManager.LoadScene(0);
     }
 
-    public override void OnLevelLoaded()
+    private void RetrySend()
     {
-        
+        Game.Instance.Score.UploadScore(NameField.text, GameModeHolder.Instance.CurrentGameMode);
     }
 
-    public override void OnLevelCleanUp()
+    private void OnNetworkError(string message)
     {
-
+        Game.Instance.MessageMenu.SwitchTo (
+            "Unable to upload your score due to network error\nRetry?",
+            RetrySend,
+            OnScoreUploaded
+        );
     }
 }

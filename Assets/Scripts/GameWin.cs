@@ -18,6 +18,7 @@ public class GameWin : GameState
 
     protected override void OnStart()
     {
+        Game.Music.FadeSound();
         Game.Score.StopCountingTime();
         StartCoroutine(DoDelay());
     }

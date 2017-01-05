@@ -4,6 +4,14 @@ using System.Linq;
 
 public class Game : MonoBehaviour
 {
+    [System.Serializable]
+    public enum GameMode
+    {
+        TimeAttack,
+        ScoreAttack
+    }
+
+    public Animator Fader;
     public MenuController Controller;
     public ScoreManager Score;
     public WorldController World;
@@ -12,13 +20,37 @@ public class Game : MonoBehaviour
     public HealthBar Health;
     public PlayerController Player;
     public FollowCamera Camera;
+    public MessageMenu MessageMenu;
 
     private List<GameState> States;
     
     private GameState CurrentState;
 
     public static Game Instance;
+    
+    public void SetTimeAttackGameMode()
+    {
+        SetGameMode(GameMode.TimeAttack);
+    }
 
+    public void SetScoreAttackGameMode()
+    {
+        SetGameMode(GameMode.ScoreAttack);
+    }
+
+    public void SetGameMode(GameMode mode)
+    {
+        var holder = FindObjectOfType<GameModeHolder>();
+        if (holder == null)
+        {
+            var go = new GameObject("GameModeHolder");
+            holder = go.AddComponent<GameModeHolder>();
+            GameModeHolder.Instance = holder;
+        }
+
+        holder.CurrentGameMode = mode;
+    }
+    
     public bool IsPlaying()
     {
         return CurrentState is PlayState;
@@ -27,6 +59,9 @@ public class Game : MonoBehaviour
     void Start()
     {
         Instance = this;
+
+        if (!MessageMenu)
+            MessageMenu = FindObjectOfType<MessageMenu>();
 
         if (!Controller)
             Controller = FindObjectOfType<MenuController>();
@@ -48,6 +83,9 @@ public class Game : MonoBehaviour
 
         if (Score)
             Score.Game = this;
+
+        if(Music)
+            Music.Reset();
 
         States = new List<GameState>();
 

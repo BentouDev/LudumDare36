@@ -30,12 +30,12 @@ public abstract class GUIBase : MonoBehaviour, ILevelDependable
         CanvasGroup.interactable = true;
     }
 
-    public abstract void OnLevelLoaded();
+    public virtual void OnLevelLoaded()
+    { }
 
     public virtual void OnAwake()
-    {
-        
-    }
+    { }
 
-    public abstract void OnLevelCleanUp();
+    public virtual void OnLevelCleanUp()
+    { }
 }

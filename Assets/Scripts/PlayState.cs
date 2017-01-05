@@ -18,6 +18,7 @@ public class PlayState : GameState
 
         if (!Game.Player.Pawn.IsAlive)
         {
+            Game.Music.UnfadeDeath();
             Game.SwitchState<GameOver>();
         }
     }

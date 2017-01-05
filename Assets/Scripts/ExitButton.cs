@@ -11,7 +11,7 @@ public class ExitButton : MonoBehaviour
 
     void Start()
     {
-#if UNITY_WEBGL
+#if UNITY_WEBGL && !UNITY_EDITOR
         Exit.gameObject.SetActive(false);
 #endif
     }
