@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Highscores : MenuBase
@@ -10,7 +9,12 @@ public class Highscores : MenuBase
 
     public RectTransform ScoreEntryParent;
 
-    private List<GameObject> currentScores = new List<GameObject>();
+    private readonly List<GameObject> currentScores = new List<GameObject>();
+
+    private void GoToMainMenu()
+    {
+        Controller.AnimShow();
+    }
 
     public override void OnStart()
     {
@@ -40,14 +44,9 @@ public class Highscores : MenuBase
     private void OnNetworkError(string message)
     {
         Game.Instance.MessageMenu.SwitchTo (
-            "Unable to download Highscores\ndue to network error\nReturning to Main Menu",
+            "Unable to download Highscores\ndue to network error",
             GoToMainMenu
         );
-    }
-
-    private void GoToMainMenu()
-    {
-        Controller.AnimShow();
     }
 
     private void OnScoresDownloaded(List<ScoreManager.OnlineScore> onlineScores)
