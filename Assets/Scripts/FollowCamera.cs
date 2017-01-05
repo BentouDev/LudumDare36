@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 public class FollowCamera : MonoBehaviour
 {
@@ -16,6 +17,13 @@ public class FollowCamera : MonoBehaviour
 
     private Vector3 StartPos;
     private Vector3 TargetPos;
+
+    public Vector3 CameraOffset;
+
+    public float TargetRoomSizeX = 6.5f;
+    public float TargetRoomSizeY = 6.5f;
+    public float MaxHorizontalOffset;
+    public float MaxVerticalOffset;
 
     void Start()
     {
@@ -54,7 +62,7 @@ public class FollowCamera : MonoBehaviour
         if (!Target)
             return;
 
-        distance = transform.position - Target.position;
+        /*
 
         bool PlayerDistance = Mathf.Abs(distance.x) > MaxDistance.x
                               || distance.z > MaxDistance.z
@@ -69,9 +77,32 @@ public class FollowCamera : MonoBehaviour
             /*TargetPos.x = Mathf.Max(TargetPos.x, RoomCenter.x - (RoomSize.x * 0.5f));
             TargetPos.x = Mathf.Min(TargetPos.x, RoomCenter.x + (RoomSize.x * 0.5f));
             TargetPos.z = Mathf.Max(TargetPos.z, RoomCenter.z - (RoomSize.z * 0.5f));
-            TargetPos.z = Mathf.Min(TargetPos.z, RoomCenter.z + (RoomSize.z * 0.5f));*/
+            TargetPos.z = Mathf.Min(TargetPos.z, RoomCenter.z + (RoomSize.z * 0.5f));//
+        }*/
+
+        distance = transform.position - Target.position;
+        var offset = Target.position - RoomCenter;
+
+        TargetPos.y = Target.position.y + CameraOffset.y;
+
+        if (RoomSize.x <= TargetRoomSizeX)
+        {
+            TargetPos.x = RoomCenter.x + CameraOffset.x;
+        }
+        else if (!(Mathf.Abs(offset.x) > (0.5f * RoomSize.x) - MaxHorizontalOffset))
+        {
+            TargetPos.x = Target.position.x + CameraOffset.x;
         }
 
+        if (RoomSize.z <= TargetRoomSizeY)
+        {
+            TargetPos.z = RoomCenter.z + CameraOffset.z;
+        }
+        else if (!(Mathf.Abs(offset.z) > (0.5f*RoomSize.z) - MaxVerticalOffset))
+        {
+            TargetPos.z = Target.position.z + CameraOffset.z;
+        }
+        
         transform.position = Vector3.Lerp(transform.position, TargetPos, Time.fixedDeltaTime * Speed * distance.normalized.magnitude);
     }
 
