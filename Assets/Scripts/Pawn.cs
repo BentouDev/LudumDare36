@@ -1,60 +1,95 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 [RequireComponent(typeof(Rigidbody))]
-public class Pawn : MonoBehaviour, IDamageable
+public class Pawn : MonoBehaviour, IDamageable, ILevelDependable
 {
+    [Header("Debug")]
     public bool drawDebug;
 
+    [Header("Mesh")]
     public Transform BodyBone;
     public Transform HeadBone;
+    public Rigidbody Rigidbody;
+    public float BulletStartDistance;
 
+    [Header("Audio")]
     public AudioRandomizer ShootEffect;
     public AudioRandomizer ScreamEffect;
 
-    public GameObject BulletPrefab;
-
     private PlayerController.InputData CurrentInput;
+    
+    [System.Serializable]
+    public struct PawnData
+    {
+        [SerializeField]
+        public GameObject BulletPrefab;
 
-    public Rigidbody Rigidbody;
+        [SerializeField]
+        public float Speed;
 
-    public float Speed;
+        [SerializeField]
+        public int Health;
 
-    public int MaxHealth;
-    public int Health;
+        [SerializeField]
+        public float ShootPerSec;
 
+        [SerializeField]
+        public List<GenericPickup> Pickups;
+    }
+
+    [Header("Data")]
+    [SerializeField]
+    public PawnData Data;
+    
     private Vector3 Velocity;
     private Vector3 AppliedVelocity;
 
     private float LastShootTime;
-    public float ShootPerSec;
-    public float BulletStartDistance;
 
-    private float ShootDelay { get { return 1.0f / ShootPerSec; } }
+    private float ShootDelay { get { return 1.0f / Data.ShootPerSec; } }
 
     public bool IsAlive { get; private set; }
-
-    private List<Door.Key> Keys = new List<Door.Key>();
-
+    
     public bool HasKey(Door.Key key)
     {
-        return Keys.Contains(key);
+        return Data.Pickups.Any(p =>
+        {
+            var k = p as KeyPickup;
+            if (k != null)
+            {
+                return k.KeyInstance == key;
+            }
+
+            return false;
+        });
     }
 
-    public void PickupKey(Door.Key keyPickup)
+    public void AddPickup(GenericPickup pickup)
     {
-        Keys.Add(keyPickup);
+        Data.Pickups.Add(pickup);
     }
-
+    
     void Start()
     {
         IsAlive = true;
         Rigidbody = GetComponent<Rigidbody>();
     }
+    
+    public void OnLevelLoaded()
+    {
+        GameModeManager.LoadPawnData(ref Data);
+    }
+
+    public void OnLevelCleanUp()
+    {
+        GameModeManager.SavePawnData(Data);
+    }
 
     public void OnInput(PlayerController.InputData currentInput)
     {
-        if (Health <= 0)
+        if (Data.Health <= 0)
         {
             IsAlive = false;
         }
@@ -62,7 +97,7 @@ public class Pawn : MonoBehaviour, IDamageable
         CurrentInput = IsAlive ? currentInput : new PlayerController.InputData();
 
         var flatVelocity = new Vector3(CurrentInput.Move.x, 0, CurrentInput.Move.y);
-        Velocity = flatVelocity * Speed;
+        Velocity = flatVelocity * Data.Speed;
 
         if(Velocity.magnitude > Mathf.Epsilon)
             BodyBone.forward = Velocity.normalized;
@@ -77,13 +112,13 @@ public class Pawn : MonoBehaviour, IDamageable
 
     public void Heal(int heal)
     {
-        Health += heal;
+        Data.Health += heal;
     }
 
     public void TakeDamage(int damage)
     {
         ScreamEffect.Play();
-        Health -= damage;
+        Data.Health -= damage;
     }
 
     void Shoot(Vector3 dir)
@@ -95,7 +130,7 @@ public class Pawn : MonoBehaviour, IDamageable
 
             var vel = Velocity.normalized * 0.125f;
             
-            var go = Instantiate(BulletPrefab) as GameObject;
+            var go = Instantiate(Data.BulletPrefab) as GameObject;
                 go.transform.position = transform.position + dir * BulletStartDistance;
 
             var bullet = go.GetComponentInChildren<Bullet>();
@@ -122,6 +157,6 @@ public class Pawn : MonoBehaviour, IDamageable
         GUI.Label(new Rect(10,10,200,30), "Input " + CurrentInput.Move);
         GUI.Label(new Rect(10,30,200,30), "Vel " + Velocity);
         GUI.Label(new Rect(10,50,200,30), "Appleid " + AppliedVelocity);
-        GUI.Label(new Rect(10,70,200,30), "HP " + Health);
+        GUI.Label(new Rect(10,70,200,30), "HP " + Data.Health);
     }
 }

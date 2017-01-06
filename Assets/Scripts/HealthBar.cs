@@ -20,7 +20,7 @@ public class HealthBar : MonoBehaviour
 
         if (Reference)
         {
-            ratio = Reference.Health / 2.0f;
+            ratio = Reference.Data.Health / 2.0f;
         }
 
         Rect.offsetMax = new Vector2(BaseWidth * ratio, Rect.offsetMax.y);

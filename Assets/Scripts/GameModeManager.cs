@@ -22,6 +22,8 @@ public class GameModeManager : MonoBehaviour
 
     public Game Game { get; set; }
 
+    private string PawnData;
+
     [Header("Mode Settings")]
     public int CurrentWorld;
     public int TimeAttackWorlds = 5;
@@ -46,6 +48,26 @@ public class GameModeManager : MonoBehaviour
 	{
 		DontDestroyOnLoad(this);
 	}
+    
+    public static void LoadPawnData(ref Pawn.PawnData data)
+    {
+        if (!string.IsNullOrEmpty(Instance.PawnData))
+        {
+            data = JsonUtility.FromJson<Pawn.PawnData>(Instance.PawnData);
+        }
+    }
+    
+    public static void SavePawnData(Pawn.PawnData data)
+    {
+        data.Pickups.RemoveAll(p => p.RemoveOnNextLevel);
+
+        foreach (GenericPickup pickup in data.Pickups)
+        {
+            pickup.transform.SetParent(null);
+        }
+
+        Instance.PawnData = JsonUtility.ToJson(data);
+    }
 
     public static void SetGameMode(Game.GameMode mode)
     {

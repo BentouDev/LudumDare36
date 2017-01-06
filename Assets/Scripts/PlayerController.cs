@@ -35,6 +35,8 @@ public class PlayerController : MonoBehaviour
     {
         if (Pawn)
         {
+            Pawn.OnLevelCleanUp();
+
             DestroyObject(Pawn.gameObject);
             Pawn = null;
         }
