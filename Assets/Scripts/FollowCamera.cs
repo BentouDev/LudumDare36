@@ -31,7 +31,18 @@ public class FollowCamera : MonoBehaviour
     {
         get { return (0.5f * RoomSize.z) - VerticalMargin; }
     }
-    
+
+    public void SetTarget(Transform target)
+    {
+        Target = target;
+    }
+
+    public void SetRoomBounds(Vector3 pos, Vector3 size)
+    {
+        RoomCenter = pos;
+        RoomSize = size;
+    }
+
     public void Reset()
     {
         if (Target)
@@ -58,17 +69,6 @@ public class FollowCamera : MonoBehaviour
 
             transform.position = TargetPos;
         }
-    }
-
-    public void SetTarget(Transform target)
-    {
-        Target = target;
-    }
-
-    public void SetRoomBounds(Vector3 pos, Vector3 size)
-    {
-        RoomCenter = pos;
-        RoomSize = size;
     }
 
     private float GetTargetPosX(Vector3 targetOffset)
