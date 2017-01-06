@@ -11,6 +11,7 @@ public class KeyPickup : GenericPickup
 
         var meshRenderer = GetComponentInChildren<MeshRenderer>();
             meshRenderer.material.color = KeyInstance.color;
+            meshRenderer.material.SetColor("_EmissionColor", KeyInstance.color);
     }
     
     protected override void OnPickup(Pawn pawn)

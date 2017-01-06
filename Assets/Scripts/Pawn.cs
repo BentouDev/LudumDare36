@@ -34,6 +34,12 @@ public class Pawn : MonoBehaviour, IDamageable, ILevelDependable
 
         [SerializeField]
         public float ShootPerSec;
+        
+        [SerializeField]
+        public float BulletSize;
+
+        [SerializeField]
+        public int BulletCount;
 
         [SerializeField]
         public List<GenericPickup> Pickups;
@@ -129,12 +135,17 @@ public class Pawn : MonoBehaviour, IDamageable, ILevelDependable
             LastShootTime = Time.time;
 
             var vel = Velocity.normalized * 0.125f;
-            
-            var go = Instantiate(Data.BulletPrefab) as GameObject;
-                go.transform.position = transform.position + dir * BulletStartDistance;
 
-            var bullet = go.GetComponentInChildren<Bullet>();
-                bullet.OnStart(dir - vel);
+            for (int i = 0; i < Data.BulletCount; i++)
+            {
+                var go = Instantiate(Data.BulletPrefab) as GameObject;
+                    go.transform.position = transform.position + dir * BulletStartDistance;
+                    go.transform.localScale = new Vector3(Data.BulletSize, Data.BulletSize, Data.BulletSize);
+
+                var bullet = go.GetComponentInChildren<Bullet>();
+                    bullet.OnStart(dir - vel);
+            }
+            
         }
     }
 
