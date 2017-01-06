@@ -29,7 +29,7 @@ public class Highscores : MenuBase
             Game.Instance.Score.OnHighscoreDownloaded += OnScoresDownloaded;
             Game.Instance.Score.OnNetworkError += OnNetworkError;
 
-            Game.Instance.Score.DownloadHighscores(ScoresToLoad, GameModeHolder.Instance.CurrentGameMode);
+            Game.Instance.Score.DownloadHighscores(ScoresToLoad, GameModeManager.Instance.CurrentGameMode);
         }
     }
 

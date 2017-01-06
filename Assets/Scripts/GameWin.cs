@@ -4,22 +4,20 @@ using UnityEngine.SceneManagement;
 
 public class GameWin : GameState
 {
-    public MenuBase WinMenu;
-
     public float Delay;
 
     IEnumerator DoDelay()
     {
         yield return new WaitForSeconds(Delay);
 
-        Game.Controller.SwitchToMenu(WinMenu);
-        Game.Controller.AnimShow(WinMenu);
+        GameModeManager.DispatchGameWin();
     }
 
     protected override void OnStart()
     {
         Game.Music.FadeSound();
         Game.Score.StopCountingTime();
+
         StartCoroutine(DoDelay());
     }
 

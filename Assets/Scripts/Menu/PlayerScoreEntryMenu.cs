@@ -45,7 +45,7 @@ public class PlayerScoreEntryMenu : MenuBase
 
     private void OnTryUploadScore()
     {
-        Game.Instance.Score.UploadScore(NameField.text, GameModeHolder.Instance.CurrentGameMode);
+        Game.Instance.Score.UploadScore(NameField.text, GameModeManager.Instance.CurrentGameMode);
     }
 
     public void OnScoreUploaded()

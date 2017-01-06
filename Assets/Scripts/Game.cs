@@ -40,7 +40,7 @@ public class Game : MonoBehaviour
 
     public void SetGameMode(GameMode mode)
     {
-        GameModeHolder.SetGameMode(mode);
+        GameModeManager.SetGameMode(mode);
     }
     
     public bool IsPlaying()
@@ -78,6 +78,8 @@ public class Game : MonoBehaviour
 
         if (Music)
             Music.Reset();
+
+        GameModeManager.Instance.Game = this;
     }
 
     private void SetupStates()
@@ -92,14 +94,29 @@ public class Game : MonoBehaviour
         }
     }
 
-    private void StartGame()
+    private void ShowMenu()
     {
-        CurrentState = States.FirstOrDefault(s => s is StartState);
+        CurrentState = States.FirstOrDefault(s => s is MenuState);
 
         if (CurrentState)
         {
             CurrentState.CallStart();
         }
+    }
+    
+    public void StartGame()
+    {
+        var menuState = CurrentState as MenuState;
+        if (menuState)
+        {
+            menuState.BeginGame();
+        }
+    }
+
+    public void RestartGame()
+    {
+        SwitchState<MenuState>();
+        StartGame();
     }
 
     void Start()
@@ -107,7 +124,7 @@ public class Game : MonoBehaviour
         SetupProperties();
         SetupStates();
         
-        StartGame();
+        ShowMenu();
     }
 
     void Update()
