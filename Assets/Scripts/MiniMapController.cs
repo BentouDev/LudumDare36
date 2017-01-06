@@ -90,9 +90,16 @@ public class MiniMapController : MonoBehaviour, ILevelDependable
         }
     }
 
-    void SetCellIconContent(CellIcon icon)
+    void SetCellIconContent(CellIcon icon, bool isDiscovered)
     {
-        if (DisplayKeys && icon.Cell.Reference.KeyPickup != null)
+        var room = icon.Cell.Reference;
+
+        if (isDiscovered && room.ActivePickup != null)
+        {
+            icon.Content.sprite = room.ActivePickup.MiniMapIcon;
+            icon.Content.color = Color.white;
+        }
+        else if (DisplayKeys && room.KeyPickup != null && !room.PickedUpKey)
         {
             icon.Content.sprite = KeySprite;
             icon.Content.color = Color.white;
@@ -154,11 +161,11 @@ public class MiniMapController : MonoBehaviour, ILevelDependable
 
     void DisplayCell(CellIcon icon)
     {
-        SetCellIconContent(icon);
 
         icon.Text.text = GetCellDescription(icon);
 
         var isDiscovered = icon.Cell.Reference.IsDiscovered;
+        SetCellIconContent(icon, isDiscovered);
         if (!DisplayUndiscovered && !isDiscovered)
         {
             icon.SetVisible(false);

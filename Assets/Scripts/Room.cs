@@ -106,6 +106,11 @@ public class Room : MonoBehaviour
 
     public bool IsCleared {  get { return !Enemies.Any() || !Enemies.Any(e => e.IsAlive); } }
     public bool IsDiscovered { get; set; }
+    
+    [HideInInspector]
+    public GenericPickup ActivePickup;
+
+    public bool PickedUpKey { get; set; }
 
     void OnDrawGizmos()
     {
@@ -254,5 +259,10 @@ public class Room : MonoBehaviour
         {
             enemy.OnStart(pawn);
         }
+    }
+
+    public void OnPickup(Pawn pawn)
+    {
+        ActivePickup = null;
     }
 }

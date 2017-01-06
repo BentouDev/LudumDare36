@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public class WorldController : MonoBehaviour
+public class WorldController : MonoBehaviour, ILevelDependable
 {
     [System.Serializable]
     public struct PickupInfo
@@ -51,6 +51,28 @@ public class WorldController : MonoBehaviour
     public Room GetCurrentRoom()
     {
         return CurrentRoom;
+    }
+    
+    public void OnLevelLoaded()
+    {
+
+    }
+
+    public void OnLevelCleanUp()
+    {
+        if (Data != null)
+        {
+            CurrentDoors.Clear();
+            CurrentRoom = null;
+            WasCleared = false;
+
+            foreach (Room room in Data.AllRooms)
+            {
+                Destroy(room.gameObject);
+            }
+
+            Data = null;
+        }
     }
 
     public void CreateWorld(Game game, WorldData data)
@@ -151,13 +173,7 @@ public class WorldController : MonoBehaviour
         {
             if (CurrentRoom.KeyPickup != null)
             {
-                Game.Music.PlayMystery();
-
-                var go = Instantiate(KeyPickupPrefab, CurrentRoom.transform) as GameObject;
-                go.transform.position = CurrentRoom.transform.position;
-
-                var key = go.GetComponent<KeyPickup>();
-                key.Init(CurrentRoom.KeyPickup);
+                SpawnPickup(KeyPickupPrefab);
             }
             else
             {
@@ -173,17 +189,19 @@ public class WorldController : MonoBehaviour
         float spawnChance = Random.Range(0.0f, 1.0f);
         if (spawnChance > (1 - PickupSpawnChance))
         {
-            SpawnPickup();
+            SpawnPickup(TryGetRandomPickup());
         }
     }
 
-    private void SpawnPickup()
+    private void SpawnPickup(GameObject prefab)
     {
-        var prefab = TryGetRandomPickup();
         if (prefab != null)
         {
             var go = Instantiate(prefab, CurrentRoom.transform) as GameObject;
                 go.transform.position = CurrentRoom.transform.position;
+            
+            CurrentRoom.ActivePickup = go.GetComponent<GenericPickup>();
+            CurrentRoom.ActivePickup.Init(CurrentRoom);
 
             Game.Music.PlayMystery();
         }
