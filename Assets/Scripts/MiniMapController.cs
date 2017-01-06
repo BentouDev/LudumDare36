@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 
-public class MiniMapController : MonoBehaviour
+public class MiniMapController : MonoBehaviour, ILevelDependable
 {
     public Sprite KeySprite;
     public Sprite NormalSprite;
@@ -26,7 +26,32 @@ public class MiniMapController : MonoBehaviour
     public bool DisplayLocks;
 
     private List<CellIcon> CellIcons = new List<CellIcon>();
+    private List<GameObject> EmptyCells = new List<GameObject>();
     
+    public void OnLevelLoaded()
+    {
+
+    }
+    
+    public void OnLevelCleanUp()
+    {
+        DisplayKeys = false;
+        DisplayUndiscovered = false;
+
+        foreach (CellIcon icon in CellIcons)
+        {
+            Destroy(icon.gameObject);
+        }
+
+        foreach (GameObject cell in EmptyCells)
+        {
+            Destroy(cell);
+        }
+
+        CellIcons.Clear();
+        EmptyCells.Clear();
+    }
+
     public void Init(Game game, WorldData data)
     {
         this.game = game;
@@ -41,6 +66,8 @@ public class MiniMapController : MonoBehaviour
                 if (cell.Type == Room.RoomType.Empty)
                 {
                     var go = Instantiate(EmptyCell, Grid.transform) as GameObject;
+
+                    EmptyCells.Add(go);
                 }
                 else
                 {
