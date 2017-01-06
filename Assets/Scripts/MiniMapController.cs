@@ -54,28 +54,42 @@ public class MiniMapController : MonoBehaviour
             }
         }
     }
-
-    void HandleIcon(CellIcon icon)
+    
+    void Update()
     {
-        var isDiscovered = icon.Cell.Reference.IsDiscovered;
-        if (DisplayCoordinates)
+        foreach (var cell in CellIcons)
         {
-            var map = icon.Cell.Reference.MapPosition;
-            icon.Text.text = map.x + ":" + map.y;
+            DisplayCell(cell);
+        }
+    }
+
+    void SetCellIconContent(CellIcon icon)
+    {
+        if (DisplayKeys && icon.Cell.Reference.KeyPickup != null)
+        {
+            icon.Content.sprite = KeySprite;
+            icon.Content.color = Color.white;
         }
         else
         {
-            icon.Text.text = string.Empty;
+            icon.Content.sprite = null;
+            icon.Content.color = Color.clear;
         }
+    }
 
-        if (!DisplayUndiscovered && !isDiscovered)
+    string GetCellDescription(CellIcon icon)
+    {
+        if (DisplayCoordinates)
         {
-            icon.SetVisible(false);
-            return;
+            var map = icon.Cell.Reference.MapPosition;
+            return map.x + ":" + map.y;
         }
-        
-        icon.SetVisible(true);
 
+        return string.Empty;
+    }
+
+    void DisplayCellDoors(CellIcon icon, bool isDiscovered)
+    {
         foreach (Room.DoorDirection dir in Room.AllDirs)
         {
             var img = icon.GetImage(dir);
@@ -90,42 +104,45 @@ public class MiniMapController : MonoBehaviour
                 img.gameObject.SetActive(false);
             }
         }
+    }
 
-        icon.Background.sprite = NormalSprite;
-
-        if (DisplayKeys && icon.Cell.Reference.KeyPickup != null)
-        {
-            icon.Content.sprite = KeySprite;
-            icon.Content.color = Color.white;
-        }
-        else
-        {
-            icon.Content.sprite = null;
-            icon.Content.color = Color.clear;
-        }
-        
+    Color GetCellColor(CellIcon icon)
+    {
         if (icon.Cell.Reference == game.World.GetCurrentRoom())
         {
-            icon.Background.color = CurrentColor;
+            return CurrentColor;
         }
         else
         {
             if (icon.Cell.Type == Room.RoomType.Boss)
             {
-                icon.Background.color = Color.red;
+                return Color.red;
             }
             else
             {
-                icon.Background.color = UndiscoveredColor;
+                return UndiscoveredColor;
             }
         }
     }
 
-    void Update()
+    void DisplayCell(CellIcon icon)
     {
-        foreach (var cell in CellIcons)
+        SetCellIconContent(icon);
+
+        icon.Text.text = GetCellDescription(icon);
+
+        var isDiscovered = icon.Cell.Reference.IsDiscovered;
+        if (!DisplayUndiscovered && !isDiscovered)
         {
-            HandleIcon(cell);
+            icon.SetVisible(false);
+            return;
         }
+        
+        icon.SetVisible(true);
+
+        icon.Background.sprite = NormalSprite;
+        icon.Background.color = GetCellColor(icon);
+
+        DisplayCellDoors(icon, isDiscovered);
     }
 }
