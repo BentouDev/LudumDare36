@@ -3,9 +3,12 @@
 |---------	|------------------	|---------------	|-------------------	|-----------------	|
 
 # 1. Opis
-Tank in dungeon jest grą akcji czasu rzeczywistego z trójwymiarową grafiką. 
+Tank in dungeon jest grą akcji czasu rzeczywistego z trójwymiarową grafiką. Pomimo
+trójwymiarowej grafiki rozgrywka toczy się w dwóch wymiarach przestrzennych.
+Gra przeznaczona jest dla pojedynczego gracza, który rywalizować będzie ze sztuczną inteligencją.
 Podczas gry gracz pokonuje proceduralnie generowane światy, pokonuje znajdujących się w nim
-przeciwników, za co otrzymuje punkty oraz zdobywa bonusy ułatwiające mu rozgrywkę.
+przeciwników, za co otrzymuje punkty oraz zdobywa bonusy ułatwiające mu rozgrywkę. Zadaniem gracza
+jest pokonanie określonej ilości światów.
 
 Gra posiada dwa tryby rozgrywki:
 - Time attack - liczy się jak najlepszy czas
@@ -13,7 +16,11 @@ Gra posiada dwa tryby rozgrywki:
 
 W grze zaimplementowane jest wysyłanie wyników na serwer i globalny ranking najlepszych graczy.
 
-# 2. Przestrzeń gry
+Gra stworzona została przy użyciu silnika Unity3D, kod gry napisany został w języku C#, 
+kod serwera zaś w języku Go. Do wykonania modeli 3D użyty został program Blender, 
+do tekstur zaś Gimp.
+
+# 2. Przestrzeń i czas gry
 
 Rozgrywka odbywa się w dwóch wymiarach przestrzennych oraz czasie.
 
@@ -39,15 +46,15 @@ Dana komórka może być pusta, bądź zawierać instancję pokoju.
 - Stany
     - aktywny
     - zaliczony
-- Asocjacje / Kompozycja (?)
+- Kompozycja
     - pokoje - dokładna ilość wyznaczana jest za pomocą algorytmu generującego świat,
      opisanego w sekcji ``8.``
     
 ### 2.2 Pokój
-Warstwą podrzędną jest ``pokój``. Pokój posiada dwa wymiary, x oraz y określające jego rozmiar
-i  wyznaczające granicę rozgrywki. Żaden z aktorów nie może znajdować się poza granicami pokoju.
-
-Aktorzy występują jedynie w tej warstwie przestrzeni.
+Warstwą podrzędną jest ``pokój``. To w nim toczy się faktyczna rozgrywka. Pokój reprezentowany jest przez
+model 3D, składający się ze czterech ścian oraz podłogi. Aktorzy występują jedynie w tej warstwie przestrzeni.
+Dodatkowo, w niektórych pokojach znajdują się elementy dekoracyjne, takie jak kolumny, czy zagłębienia.
+Ściany pokoju wyznaczają jednocześnie granicę rozgrywki. Żaden z aktorów nie może znajdować się poza granicami pokoju.
 
 - Liczebność - w danej chwili ``1``, ilość istniejących na raz w świecie pokoi 
     różni się zależnie od postępów w grze
@@ -85,7 +92,7 @@ Gracz na starcie otrzymuje ``6`` punktów życia i nie posiada żadnych bonusów
 Są one odpowiednio w północnej, wchodniej, zachodniej oraz południowej częsci pokoju.
 - Drzwi  prowadzą do pokoju znajdującego się w sąsiadującej z odpowiedniej strony komórce. 
 W przypadku, gdy komórka jest pusta, bądź pokój znajduje się na krawędzi świata, drzwi nie są
-umieszczane wogóle.
+umieszczane.
 - Gdy postać gracza spełnia określone zasadami wymagania oraz zbliży się dostatecznie do ``drzwi``
 zostanie przeniesiona do sąsiadującego z danej strony pokoju.
 
@@ -106,18 +113,20 @@ Zasady dotyczące zwycięstwa bądź przegranej w grze zależą od danego trybu 
   znajdującego się w ``5`` świecie
 
 - W przypadku zwycięstwa podliczany jest czas jaki uzyskał gracz.
-- Za lepszy wynik uważa się jak najniższy czas.
+- Za lepszy wynik uważa się jak najniższy czas przejścia gry.
 
 ### Score attack
 - Gra kończy się jedynie w przypadku śmierci gracza.
 - Zapisane zostają zdobyte przez gracza punkty. 
-- Za lepszy wynik uważa się jak najwyższą ilość punktów.
+- Za lepszy wynik uważa się jak najwyższą zdobytą ilość punktów.
 
 # 3. Aktorzy
 
 Aktorzy są to obiekty będące w stanie podejmować decyzje 
 oraz poprzez swoje akcje wpływać na świat gry.
 Aktorzy istnieją jedynie w podrzędnej warstwie przestrzeni gry, ``Pokoju``.
+Każdy aktor reprezentowany jest przez model 3D, oraz niewidzialny kształt, 
+z którym liczone są kolizje.
 
 W grze wyróżniamy dwa rodzaje aktorów :
 
@@ -160,6 +169,9 @@ Obiekty są podmiotami akcji aktorów w świecie gry. Same z siebie nie wykonuj�
 lecz mogą odpowiadać na akcje podjęte przez aktorów.
 Obiekty istnieją jedynie w podrzędnej warstwie przestrzeni gry, ``Pokoju``.
 
+Każdy obiekt reprezentowany jest przez model 3D, oraz niewidzialny kształt, 
+z którym liczone są kolizje.
+
 W grze wyróżniamy następujące rodzaje obiektów :
 
 ### 4.1. Pocisk
@@ -171,9 +183,9 @@ W grze wyróżniamy następujące rodzaje obiektów :
     - prędkość poruszania się
     - właściciel pocisku
 - Aktywności 
-    - pocisk może zostać wystrzelony przez przeciwnika jak i postać gracza
+    - pocisk może zostać wystrzelony zarówno przez przeciwnika jak i postać gracza
     - w momencie wystrzału dany aktor jest przypisywany jako właściciel pocisku
-    - w przypadku kolizji pocisk ulega unicestwieniu
+    - w przypadku kolizji pocisk ulega usunięciu ze świata gry
 - Ograniczenia
     - wystrzelony pocisk porusza się w tylko nadanym kierunku i z nadaną prędkością
     - pocisk ignoruje kolizję z aktorami tego samego typu jak jego właściciel
@@ -246,6 +258,12 @@ Każdy z tych rodzai posiada kilka unikalnych cech :
 - ograniczenia
     - efekt traci się po przejściu przez portal do innego świata
 
+### 4.5 Element dekoracyjny
+
+W niektórych pokojach znajdują się także elementy dekoracyjne. Reprezentowane są one przez
+jakiś model 3D, np. kolumnę czy zagłębienie. Z każdym takim elementem możliwa jest kolizja,
+powoduje ona jedynie niemożność ruchu danego aktora, czy też obiektu.
+
 # 5. Warstwa składu danych
 
 > Dodać diagramy klas i tabelek w bazie
@@ -300,4 +318,52 @@ docker run -d lukaszpyrzyk/tankindungeonapi
 
 W grze zaimplementowany jest algorytm generujący proceduralne planszę.
 
-> Dodać opis algorytmu
+Przyjmuje on kilka parametrów wejściowych : 
+- Seed - liczba ustawiana jako seed w generatorze liczb pseudolosowych
+- CorridorLength - maksymalna długość wygenerowanego korytarza w pokojach
+- AllowLoops - czy algorytm ma pozwolić na powstawanie pętli korytarzy (kilka alternatywnych ścieżek do celu)
+- MinWidth - minimalna szerokość świata w pokojach
+- MaxWidth - maksymalna szerokość świata w pokojach
+- MinHeight - minimalna wysokość świata w pokojach
+- MaxHeight - maksymalna wysokość świata w pokojach
+- MinMapFullfill - minimalny procent wypełnienia świata pokojami
+- MaxMapFullfill - maksymalny procent wypełnienia świata pokojami
+
+Algorytm jest deterministyczny, więc dla takich samych parametrów wejściowych wygeneruje identyczny świat.
+
+## Sposób działania
+Na samym początku ustawiany jest seed generatora liczb pseudolosowych. Następnie losowane są następujące wartości:
+- Szerokość świata w pokojach
+- Wysokość świata w pokojach
+- Procentowe wypełnienie świata pokojami
+- Koordynaty pierwszego pokoju
+
+```
+WorldHeight = Mathf.CeilToInt(Random.Range(MinHeight, MaxHeight));
+WorldWidth = Mathf.CeilToInt(Random.Range(MinWidth, MaxWidth));
+WorldFill = Random.Range(MinMapFullfill, MaxMapFullfill);
+
+var FirstRoomPosX = Random.Range(0, WorldWidth - 1);
+var FirstRoomPosY = Random.Range(0, WorldHeight - 1);
+```
+
+Kolejnym krokiem jest ustalenie finalnej ilości pokojów w świecie
+```
+RoomCount = Mathf.CeilToInt((WorldHeight * WorldWidth) * WorldFill);
+```
+
+Następnie powstaje dwuwymiarowa tablica reprezentująca świat, 
+domyślnie wypełniona pustymi komórkami. Świat budowany jest w sposób rekurencyjny,
+zaczynając od wylosowanych koordynatów pierwszego pokoju.
+Pojedynczy krok rekurencji wygląda następująco :
+
+- sprawdź czy dany koordynat odpowiada pustej komórce, jeżeli tak, to stwórz w tym miejscu pokój i dodaj go do listy
+- zdekrementuj obecną długość korytarza
+- sprawdź ilość wolnych komórek wookół pokoju (będzie w przedziale od 0 do 4)
+- dopóki ilość pokoi w liście jest mniejsza od docelowej, ilość wolnych pokoi większa od zera oraz obecna długość korytarza jest dłuższa od 0 :
+    - wylosuj liczbę w przedziale od 0 do ilości wolnych komórek
+    - wylicz koordynat dla wylosowanej komórki
+    - wykonaj kolejny krok rekurencji dla koordynatów wylosowanej komórki
+    - jeśli pozwalamy na tworzenie pętli
+        - przelicz okoliczne wolne pokoje ponownie - nasz pokój-dziecko mógł stworzyć swoje własne dzieci, które zajęły już wolne wcześniej pola
+- zwróć stworzony pokój
