@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class PlayState : GameState
+public class GamePlay : GameState
 {
     protected override void OnStart()
     {

@@ -19,7 +19,7 @@ class MenuState : GameState
 
         Game.Score.StartCountingTime();
 
-        Game.SwitchState<PlayState>();
+        Game.SwitchState<GamePlay>();
     }
 
     public void BeginGame()

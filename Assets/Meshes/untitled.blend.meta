@@ -17,6 +17,11 @@ ModelImporter:
     100018: Bone
     100020: Bone_001
     100022: Cube_002
+    100024: Cube_003
+    100026: Cube_004
+    100028: Cube_005
+    100030: Cylinder
+    100032: Cylinder_001
     400000: //RootNode
     400002: Corner
     400004: Wall
@@ -29,6 +34,11 @@ ModelImporter:
     400018: Bone
     400020: Bone_001
     400022: Cube_002
+    400024: Cube_003
+    400026: Cube_004
+    400028: Cube_005
+    400030: Cylinder
+    400032: Cylinder_001
     2300000: //RootNode
     2300002: Corner
     2300004: Wall
@@ -37,6 +47,8 @@ ModelImporter:
     2300010: Torus
     2300012: Cube
     2300014: Cube_001
+    2300016: Cylinder
+    2300018: Cylinder_001
     3300000: //RootNode
     3300002: Corner
     3300004: Wall
@@ -45,6 +57,8 @@ ModelImporter:
     3300010: Torus
     3300012: Cube
     3300014: Cube_001
+    3300016: Cylinder
+    3300018: Cylinder_001
     4300000: Cube
     4300002: Corner
     4300004: Wall
@@ -53,6 +67,11 @@ ModelImporter:
     4300010: Torus
     4300012: Cube_001
     4300014: Cube_002
+    4300016: Cylinder_001
+    4300018: Cylinder
+    4300020: Cube_005
+    4300022: Cube_004
+    4300024: Cube_003
     6400000: //RootNode
     6400002: Corner
     6400004: Wall
@@ -61,9 +80,14 @@ ModelImporter:
     6400010: Torus
     6400012: Cube
     6400014: Cube_001
+    6400016: Cylinder
+    6400018: Cylinder_001
     7400000: Default Take
     9500000: //RootNode
     13700000: Cube_002
+    13700002: Cube_003
+    13700004: Cube_004
+    13700006: Cube_005
   materials:
     importMaterials: 1
     materialName: 0
@@ -110,6 +134,7 @@ ModelImporter:
   importAnimation: 1
   copyAvatar: 0
   humanDescription:
+    serializedVersion: 2
     human: []
     skeleton: []
     armTwist: 0.5
@@ -120,7 +145,10 @@ ModelImporter:
     legStretch: 0.05
     feetSpacing: 0
     rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
     hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   animationType: 2
   humanoidOversampling: 1

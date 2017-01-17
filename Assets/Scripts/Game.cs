@@ -45,7 +45,7 @@ public class Game : MonoBehaviour
     
     public bool IsPlaying()
     {
-        return CurrentState is PlayState;
+        return CurrentState is GamePlay;
     }
 
     private void SetupProperties()
