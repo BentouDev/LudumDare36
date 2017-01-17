@@ -266,7 +266,9 @@ powoduje ona jedynie niemożność ruchu danego aktora, czy też obiektu.
 
 # 5. Warstwa składu danych
 
-> Dodać diagramy klas i tabelek w bazie
+Diagram klas
+
+![Diagram Klas](./TankInDungeonClassDiagram.png)
 
 # 6. Interfejs użytkownika
 
