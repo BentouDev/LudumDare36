@@ -8,6 +8,8 @@ using UnityEngine.Networking;
 
 public class ScoreManager : MonoBehaviour
 {
+    public bool ShowDebug;
+
     public delegate void HighscoreDelegate(List<OnlineScore> scores);
     public delegate void ScoreDelegate();
     public delegate void NetworkErrorDelegate(string errorMessage);
@@ -222,6 +224,9 @@ public class ScoreManager : MonoBehaviour
 
     public void OnGUI()
     {
+        if (!ShowDebug)
+            return;
+
         GUI.Label(new Rect(10,10,200,30), "Time : " + RealTimePassed);
         GUI.Label(new Rect(10,30,200,30), "Score : " + Score);
     }
