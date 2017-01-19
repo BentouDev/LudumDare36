@@ -271,15 +271,21 @@ Diagram klas
 ![Diagram Klas](./TankInDungeonClassDiagram.png)
 
 # 6. Interfejs i Interakcje użytkownika
-## Interfejs
+
+Diagram aktywności
+
+![Diagram Aktywności](./TankInDungeonStateMachine.png)
+
+## Menu Główne
 Po uruchomieniu gry przenosimy się od menu głownego. Sterowanie po menu odbywa się za pomocą strzałek, potwierdzenie zaznaczonej opcji znajduje się pod klawiszem enter.
-Poniżej znajduje się schemat menu :
+Poniżej znajduje się diagram przypadków użycia głownego menu :
 
 ![Schemat Menu](./TankInDungeonMenuScheme.png)
 
+## Interfejs
 Podczas rozgrywki możemy wydzielić cztery glówne elementy interface'u :
-- Pasek punktów życia - pojedynczy punk reprezentowany jest przez połówkę serca, każda para punktów oznacza całe serce
-- Mini mapę - na niej gracz ma możliwość zapoznania się z układem odwiedzonych pokoi w świecie. Mapa przedstawia również ikony znajdujących się w niej przedmiotów bonusowych. Czerwonym kafelkiem oznaczony jest pokój końcowy.
+- Pasek punktów życia - w lewym górnym rógu; pojedynczy punk reprezentowany jest przez połówkę serca, każda para punktów oznacza całe serce
+- Mini mapę - w prawej części ekranu; na niej gracz ma możliwość zapoznania się z układem odwiedzonych pokoi w świecie. Mapa przedstawia również ikony znajdujących się w niej przedmiotów bonusowych. Czerwonym kafelkiem oznaczony jest pokój końcowy.
 - Aktualną ilość punktów (prawy górny róg)
 - Aktualny czas gry (prawy dolny róg)
 
