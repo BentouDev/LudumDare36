@@ -270,9 +270,24 @@ Diagram klas
 
 ![Diagram Klas](./TankInDungeonClassDiagram.png)
 
-# 6. Interfejs użytkownika
+# 6. Interfejs i Interakcje użytkownika
+## Interfejs
+Po uruchomieniu gry przenosimy się od menu głownego. Sterowanie po menu odbywa się za pomocą strzałek, potwierdzenie zaznaczonej opcji znajduje się pod klawiszem enter.
+Poniżej znajduje się schemat menu :
 
-> Dodać opis interfejsu
+![Schemat Menu](./TankInDungeonMenuScheme.png)
+
+Podczas rozgrywki możemy wydzielić cztery glówne elementy interface'u :
+- Pasek punktów życia - pojedynczy punk reprezentowany jest przez połówkę serca, każda para punktów oznacza całe serce
+- Mini mapę - na niej gracz ma możliwość zapoznania się z układem odwiedzonych pokoi w świecie. Mapa przedstawia również ikony znajdujących się w niej przedmiotów bonusowych. Czerwonym kafelkiem oznaczony jest pokój końcowy.
+- Aktualną ilość punktów (prawy górny róg)
+- Aktualny czas gry (prawy dolny róg)
+
+## Interakcje
+Poruszanie się postacią odbywa się za pomocą dwóch grup przycisków. Klawisze WSAD odpowiadają za poruszanie się postaci gracza w świecie, natomiast strzał w danym kierunku odbywa się poprzez wciśnięcie odpowienich klawiszy strzałek.
+Przytrzymanie danego klawisza powoduje ciągły ruch postaci w danym kierunku, podobnie jak przytrzymanie klawisza strzałek powoduje ciągły ostrzał z odpowiednią częstotliwością.
+
+Gra pozwala również na sterowanie za pomocą pada do gier. W tym przypadku ruch odbywa się poprzez wychylenie lewej gałki analogowej w danym kierunku, strzał zaś poprzez wychylenie prawej.
 
 # 7. Globalny ranking
 ## 7.1. Baza danych
