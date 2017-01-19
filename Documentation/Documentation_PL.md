@@ -258,6 +258,14 @@ Każdy z tych rodzai posiada kilka unikalnych cech :
 - ograniczenia
     - efekt traci się po przejściu przez portal do innego świata
 
+#### 4.4.4. bonus do statystyk
+- atrybuty
+    - rodzaj pocisku
+    - zwiększenie szybkości
+    - zwiększenie szybkostrzelności
+- aktywności
+    - podniesiona zwiększają postaci gracza daną statystykę oraz ustawiają nowy rodzaj pocisku, jeśli został określony
+
 ### 4.5 Element dekoracyjny
 
 W niektórych pokojach znajdują się także elementy dekoracyjne. Reprezentowane są one przez
