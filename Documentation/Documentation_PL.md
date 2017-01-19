@@ -369,7 +369,7 @@ Na samym początku ustawiany jest seed generatora liczb pseudolosowych. Następn
 - Procentowe wypełnienie świata pokojami
 - Koordynaty pierwszego pokoju
 
-```C++
+```cpp
 WorldHeight = Mathf.CeilToInt(Random.Range(MinHeight, MaxHeight));
 WorldWidth = Mathf.CeilToInt(Random.Range(MinWidth, MaxWidth));
 WorldFill = Random.Range(MinMapFullfill, MaxMapFullfill);
@@ -379,7 +379,7 @@ var FirstRoomPosY = Random.Range(0, WorldHeight - 1);
 ```
 
 Kolejnym krokiem jest ustalenie finalnej ilości pokojów w świecie
-```C++
+```cpp
 RoomCount = Mathf.CeilToInt((WorldHeight * WorldWidth) * WorldFill);
 ```
 
@@ -405,7 +405,7 @@ By utrudnić graczowi zadanie drzwi prowadzące do ostatniego pokoju zostają za
 Liczba zamków i kluczy determinowana jest przez ilość znajdujących się w świecie pokoi - jeden klucz na co najmniej ``5`` pokoi.
 Wartość ta została wyznaczona w trakcie testowania gry.
 
-```C++
+```cpp
 KeysCount = RoomCount / 5;
 ```
 
