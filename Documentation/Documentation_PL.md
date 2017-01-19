@@ -369,7 +369,7 @@ Na samym początku ustawiany jest seed generatora liczb pseudolosowych. Następn
 - Procentowe wypełnienie świata pokojami
 - Koordynaty pierwszego pokoju
 
-```
+```C++
 WorldHeight = Mathf.CeilToInt(Random.Range(MinHeight, MaxHeight));
 WorldWidth = Mathf.CeilToInt(Random.Range(MinWidth, MaxWidth));
 WorldFill = Random.Range(MinMapFullfill, MaxMapFullfill);
@@ -379,7 +379,7 @@ var FirstRoomPosY = Random.Range(0, WorldHeight - 1);
 ```
 
 Kolejnym krokiem jest ustalenie finalnej ilości pokojów w świecie
-```
+```C++
 RoomCount = Mathf.CeilToInt((WorldHeight * WorldWidth) * WorldFill);
 ```
 
@@ -398,3 +398,19 @@ Pojedynczy krok rekurencji wygląda następująco :
     - jeśli pozwalamy na tworzenie pętli
         - przelicz okoliczne wolne pokoje ponownie - nasz pokój-dziecko mógł stworzyć swoje własne dzieci, które zajęły już wolne wcześniej pola
 - zwróć stworzony pokój
+
+## Zamki i klucze
+By utrudnić graczowi zadanie drzwi prowadzące do ostatniego pokoju zostają zamknięte na klucz.
+
+Liczba zamków i kluczy determinowana jest przez ilość znajdujących się w świecie pokoi - jeden klucz na co najmniej ``5`` pokoi.
+Wartość ta została wyznaczona w trakcie testowania gry.
+
+```C++
+KeysCount = RoomCount / 5;
+```
+
+Sposób działania prezentuje się w następujący sposób :
+- Najpierw algorytm szuka optymalnej drogi od pokoju początkowego do pokoju końcowego i zapamiętuje ją jako drogę główną
+- Pierwszy klucz zostaje umieszczony w pokoju jak najdalszym od początkowego, nie będącego jednocześnie pokojem głównym
+- Każdy kolejny klucz, podobnie jak pierwszy, umieszczany jest w pokoju jak najdalszym od początkowego, nie będącego jednocześnie pokojem głównym, 
+z dodatkowym warunkiem, by zamykany pokój nie był już zamknięty ani nie blokował przejścia do drogi głównej.
