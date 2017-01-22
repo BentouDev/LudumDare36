@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Highscores : MenuBase
@@ -10,21 +9,36 @@ public class Highscores : MenuBase
 
     public RectTransform ScoreEntryParent;
 
-    private List<GameObject> currentScores = new List<GameObject>();
+    private readonly List<GameObject> currentScores = new List<GameObject>();
+
+    private void GoToMainMenu()
+    {
+        Controller.AnimShow();
+    }
 
     public override void OnStart()
     {
-        base.OnStart();
+        gameObject.SetActive(true);
 
-        Game.Instance.Score.OnHighscoreDownloaded -= OnScoresDownloaded;
-        Game.Instance.Score.OnHighscoreDownloaded += OnScoresDownloaded;
+        if (Application.internetReachability == NetworkReachability.NotReachable)
+        {
+            OnNoInternetConnection();
+        }
+        else
+        {
+            Game.Instance.Score.OnHighscoreDownloaded += OnScoresDownloaded;
+            Game.Instance.Score.OnNetworkError += OnNetworkError;
 
-        Game.Instance.Score.DownloadHighscores(ScoresToLoad);
+            Game.Instance.Score.DownloadHighscores(ScoresToLoad, GameModeManager.Instance.CurrentGameMode);
+        }
     }
 
     public override void OnEnd()
     {
         base.OnEnd();
+
+        Game.Instance.Score.OnHighscoreDownloaded -= OnScoresDownloaded;
+        Game.Instance.Score.OnNetworkError -= OnNetworkError;
 
         foreach (GameObject score in currentScores)
         {
@@ -36,6 +50,8 @@ public class Highscores : MenuBase
 
     private void OnScoresDownloaded(List<ScoreManager.OnlineScore> onlineScores)
     {
+        StartCoroutine(AnimShow(AnimTime));
+
         int index = 1;
         foreach (ScoreManager.OnlineScore score in onlineScores)
         {
@@ -49,13 +65,19 @@ public class Highscores : MenuBase
         }
     }
 
-    public override void OnLevelLoaded()
+    private void OnNoInternetConnection()
     {
-        
+        Game.Instance.MessageMenu.SwitchTo(
+           "No internet connection!",
+           GoToMainMenu
+       );
     }
 
-    public override void OnLevelCleanUp()
+    private void OnNetworkError(string message)
     {
-
+        Game.Instance.MessageMenu.SwitchTo(
+            "Unable to download Highscores\ndue to network error",
+            GoToMainMenu
+        );
     }
 }

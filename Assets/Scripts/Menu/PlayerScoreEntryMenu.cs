@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,7 +7,7 @@ public class PlayerScoreEntryMenu : MenuBase
     public UnityEngine.UI.Text ScoreField;
     public UnityEngine.UI.InputField NameField;
 
-    private bool Clicked;
+    private bool AlreadyClicked;
 
     public override void OnStart()
     {
@@ -21,38 +19,57 @@ public class PlayerScoreEntryMenu : MenuBase
             ScoreField.text = string.Format(" {0}\n {1:D2}m {2:D2}s", Game.Instance.Score.Score, span.Minutes, span.Seconds);
         }
 
-        Clicked = false;
+        AlreadyClicked = false;
 
-        Game.Instance.Score.OnScoreUploaded -= ExitGame;
-        Game.Instance.Score.OnScoreUploaded += ExitGame;
+        Game.Instance.Score.OnScoreUploaded += OnScoreUploaded;
+        Game.Instance.Score.OnNetworkError += OnNetworkError;
     }
-
+    
     public void SubmitScore()
     {
-        if(Clicked)
+        if(AlreadyClicked || !NameField || string.IsNullOrEmpty(NameField.text))
             return;
         
-        Clicked = true;
+        AlreadyClicked = true;
         Canvas.interactable = false;
-        
-        if (NameField && !string.IsNullOrEmpty(NameField.text))
+
+        if (Application.internetReachability == NetworkReachability.NotReachable)
         {
-            Game.Instance.Score.UploadScore(NameField.text);
+            OnNoInternetConnection();
+        }
+        else
+        {
+            OnTryUploadScore();
         }
     }
 
-    public void ExitGame()
+    private void OnTryUploadScore()
     {
+        Game.Instance.Score.UploadScore(NameField.text, GameModeManager.Instance.CurrentGameMode);
+    }
+
+    public void OnScoreUploaded()
+    {
+        Game.Instance.Score.OnNetworkError -= OnNetworkError;
+        Game.Instance.Score.OnScoreUploaded -= OnScoreUploaded;
         SceneManager.LoadScene(0);
     }
 
-    public override void OnLevelLoaded()
+    private void OnNoInternetConnection()
     {
-        
+        Game.Instance.MessageMenu.SwitchTo (
+            "Theres no internet connection!\nRetry?",
+            OnTryUploadScore,
+            OnScoreUploaded
+        );
     }
 
-    public override void OnLevelCleanUp()
+    private void OnNetworkError(string message)
     {
-
+        Game.Instance.MessageMenu.SwitchTo (
+            "Unable to upload your score due to network error\nRetry?",
+            OnTryUploadScore,
+            OnScoreUploaded
+        );
     }
 }

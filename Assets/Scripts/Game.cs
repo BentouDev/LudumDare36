@@ -4,6 +4,14 @@ using System.Linq;
 
 public class Game : MonoBehaviour
 {
+    [System.Serializable]
+    public enum GameMode
+    {
+        TimeAttack,
+        ScoreAttack
+    }
+
+    public Animator Fader;
     public MenuController Controller;
     public ScoreManager Score;
     public WorldController World;
@@ -12,21 +20,40 @@ public class Game : MonoBehaviour
     public HealthBar Health;
     public PlayerController Player;
     public FollowCamera Camera;
+    public MessageMenu MessageMenu;
 
     private List<GameState> States;
     
     private GameState CurrentState;
 
     public static Game Instance;
-
-    public bool IsPlaying()
+    
+    public void SetTimeAttackGameMode()
     {
-        return CurrentState is PlayState;
+        SetGameMode(GameMode.TimeAttack);
     }
 
-    void Start()
+    public void SetScoreAttackGameMode()
+    {
+        SetGameMode(GameMode.ScoreAttack);
+    }
+
+    public void SetGameMode(GameMode mode)
+    {
+        GameModeManager.SetGameMode(mode);
+    }
+    
+    public bool IsPlaying()
+    {
+        return CurrentState is GamePlay;
+    }
+
+    private void SetupProperties()
     {
         Instance = this;
+
+        if (!MessageMenu)
+            MessageMenu = FindObjectOfType<MessageMenu>();
 
         if (!Controller)
             Controller = FindObjectOfType<MenuController>();
@@ -49,6 +76,14 @@ public class Game : MonoBehaviour
         if (Score)
             Score.Game = this;
 
+        if (Music)
+            Music.Reset();
+
+        GameModeManager.Instance.Game = this;
+    }
+
+    private void SetupStates()
+    {
         States = new List<GameState>();
 
         var states = FindObjectsOfType<GameState>();
@@ -57,17 +92,47 @@ public class Game : MonoBehaviour
             state.Init(this);
             States.Add(state);
         }
-        
-        CurrentState = States.FirstOrDefault(s => s is StartState);
+    }
 
-        if(CurrentState)
+    private void ShowMenu()
+    {
+        CurrentState = States.FirstOrDefault(s => s is MenuState);
+
+        if (CurrentState)
+        {
             CurrentState.CallStart();
+        }
+    }
+    
+    public void StartGame()
+    {
+        var menuState = CurrentState as MenuState;
+        if (menuState)
+        {
+            menuState.BeginGame();
+        }
+    }
+
+    public void RestartGame()
+    {
+        SwitchState<MenuState>();
+        StartGame();
+    }
+
+    void Start()
+    {
+        SetupProperties();
+        SetupStates();
+        
+        ShowMenu();
     }
 
     void Update()
     {
-        if(CurrentState)
+        if (CurrentState)
+        {
             CurrentState.CallUpdate();
+        }
     }
 
     public void SwitchState<T>() where T : GameState

@@ -7,21 +7,20 @@ using UnityEngine.SceneManagement;
 
 public class GameOver : GameState
 {
-    public MenuBase OverMenu;
-
     public float DelayTime = 3;
 
     IEnumerator Delay()
     {
         yield return new WaitForSeconds(DelayTime);
 
-        Game.Controller.SwitchToMenu(OverMenu);
-        Game.Controller.AnimShow(OverMenu);
+        GameModeManager.DispatchGameLose();
     }
 
     protected override void OnStart()
     {
+        Game.Music.FadeSound();
         Game.Score.StopCountingTime();
+
         StartCoroutine(Delay());
     }
 

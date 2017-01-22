@@ -1,41 +1,35 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
 public class FollowCamera : MonoBehaviour
 {
-    public bool drawDebug;
+    [Header("Positioning")]
     public Transform Target;
     public float Speed = 2;
-    public Vector3 MaxDistance;
-    public Vector3 MinDistance;
+
+    public Vector3 OffsetFromTarget;
+
+    [Header("Minimal room size")]
+    public float MinRoomSizeX = 6.5f;
+    public float MinRoomSizeZ = 6.5f;
+
+    [Header("Minimal margin from borders")]
+    public float HorizontalMargin = 3;
+    public float VerticalMargin = 3;
 
     private Vector3 RoomCenter;
     private Vector3 RoomSize;
 
-    private Vector3 distance;
-
-    private Vector3 StartPos;
+    private Vector3 DistanceToTarget;
     private Vector3 TargetPos;
 
-    void Start()
+    public float MaxHorizontalOffset
     {
-        StartPos = transform.position;
+        get { return (0.5f * RoomSize.x) - HorizontalMargin; }
     }
 
-    public void Reset()
+    public float MaxVerticalOffset
     {
-        if (Target)
-        {
-            var pos = Target.position + MinDistance;
-
-            TargetPos = new Vector3(pos.x, transform.position.y, pos.z);
-            TargetPos.x = Mathf.Max(TargetPos.x, RoomCenter.x - (RoomSize.x * 0.5f));
-            TargetPos.x = Mathf.Min(TargetPos.x, RoomCenter.x + (RoomSize.x * 0.5f));
-            TargetPos.z = Mathf.Max(TargetPos.z, RoomCenter.z - (RoomSize.z * 0.5f));
-            TargetPos.z = Mathf.Min(TargetPos.z, RoomCenter.z + (RoomSize.z * 0.5f));
-
-            transform.position = TargetPos;
-        }
+        get { return (0.5f * RoomSize.z) - VerticalMargin; }
     }
 
     public void SetTarget(Transform target)
@@ -49,37 +43,86 @@ public class FollowCamera : MonoBehaviour
         RoomSize = size;
     }
 
+    public void Reset()
+    {
+        if (Target)
+        {
+            TargetPos.y = Target.position.y + OffsetFromTarget.y;
+
+            if (RoomSize.x <= MinRoomSizeX)
+            {
+                TargetPos.x = RoomCenter.x + OffsetFromTarget.x;
+            }
+            else
+            {
+                TargetPos.x = Target.position.x + OffsetFromTarget.x;
+            }
+
+            if (RoomSize.z <= MinRoomSizeZ)
+            {
+                TargetPos.z = RoomCenter.z + OffsetFromTarget.z;
+            }
+            else
+            {
+                TargetPos.z = Target.position.z + OffsetFromTarget.z;
+            }
+
+            transform.position = TargetPos;
+        }
+    }
+
+    private float GetTargetPosX(Vector3 targetOffset)
+    {
+        var targetOffsetX = Mathf.Abs(targetOffset.x);
+
+        // If room is too small, center camera
+        if (RoomSize.x <= MinRoomSizeX)
+        {
+            return RoomCenter.x + OffsetFromTarget.x;
+        }
+        // Move camera only if player is far enough from room border
+        else if (targetOffsetX <= MaxHorizontalOffset)
+        {
+            return Target.position.x + OffsetFromTarget.x;
+        }
+
+        return TargetPos.x;
+    }
+
+    private float GetTargetPosZ(Vector3 targetOffset)
+    {
+        var targetOffsetZ = Mathf.Abs(targetOffset.z);
+
+        // If room is too small, center camera
+        if (RoomSize.z <= MinRoomSizeZ)
+        {
+            return RoomCenter.z + OffsetFromTarget.z;
+        }
+        // Move camera only if player is far enough from room border
+        else if (targetOffsetZ <= MaxVerticalOffset)
+        {
+            return Target.position.z + OffsetFromTarget.z;
+        }
+
+        return TargetPos.z;
+    }
+
     void FixedUpdate()
     {
         if (!Target)
             return;
 
-        distance = transform.position - Target.position;
+        var targetOffsetFromCenter = Target.position - RoomCenter;
 
-        bool PlayerDistance = Mathf.Abs(distance.x) > MaxDistance.x
-                              || distance.z > MaxDistance.z
-                              || Mathf.Abs(distance.x) < MinDistance.x
-                              || distance.z < MinDistance.z;
+        TargetPos.y = Target.position.y + OffsetFromTarget.y;
+        TargetPos.x = GetTargetPosX(targetOffsetFromCenter);
+        TargetPos.z = GetTargetPosZ(targetOffsetFromCenter);
 
-        if (PlayerDistance)
-        {
-            var pos = Target.position + MinDistance;
-            TargetPos = new Vector3(pos.x, transform.position.y, pos.z);
+        DistanceToTarget = transform.position - Target.position;
 
-            /*TargetPos.x = Mathf.Max(TargetPos.x, RoomCenter.x - (RoomSize.x * 0.5f));
-            TargetPos.x = Mathf.Min(TargetPos.x, RoomCenter.x + (RoomSize.x * 0.5f));
-            TargetPos.z = Mathf.Max(TargetPos.z, RoomCenter.z - (RoomSize.z * 0.5f));
-            TargetPos.z = Mathf.Min(TargetPos.z, RoomCenter.z + (RoomSize.z * 0.5f));*/
-        }
-
-        transform.position = Vector3.Lerp(transform.position, TargetPos, Time.fixedDeltaTime * Speed * distance.normalized.magnitude);
-    }
-
-    void OnGUI()
-    {
-        if (!drawDebug)
-            return;
-
-        GUI.Label(new Rect(Screen.width - 200, 10, 200, 30), "dst : " + distance);
+        transform.position = Vector3.Lerp (
+            transform.position, TargetPos, 
+            Time.fixedDeltaTime * Speed * DistanceToTarget.normalized.magnitude
+        );
     }
 }

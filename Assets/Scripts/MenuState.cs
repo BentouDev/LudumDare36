@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-class StartState : GameState
+class MenuState : GameState
 {
     public WorldGenerator Generator;
     public float StartDelay;
@@ -19,10 +19,10 @@ class StartState : GameState
 
         Game.Score.StartCountingTime();
 
-        Game.SwitchState<PlayState>();
+        Game.SwitchState<GamePlay>();
     }
 
-    public void DoStart()
+    public void BeginGame()
     {
         if (!Started)
         {
@@ -33,7 +33,7 @@ class StartState : GameState
 
     protected override void OnStart()
     {
-
+        Started = false;
     }
 
     protected override void OnUpdate()

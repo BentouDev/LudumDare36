@@ -3,17 +3,19 @@ using System.Collections.Generic;
 
 public class KeyPickup : GenericPickup
 {
-    protected Door.Key KeyInstance;
+    public Door.Key KeyInstance { get; private set; }
 
-    public void Init(Door.Key key)
+    protected override void OnInit()
     {
-        KeyInstance = key;
-        var renderer = GetComponentInChildren<MeshRenderer>();
-            renderer.material.color = KeyInstance.color;
-    }
+        KeyInstance = ParentRoom.KeyPickup;
 
+        var meshRenderer = GetComponentInChildren<MeshRenderer>();
+            meshRenderer.material.color = KeyInstance.color;
+            meshRenderer.material.SetColor("_EmissionColor", KeyInstance.color);
+    }
+    
     protected override void OnPickup(Pawn pawn)
     {
-        pawn.PickupKey(KeyInstance);
+        ParentRoom.PickedUpKey = true;
     }
 }

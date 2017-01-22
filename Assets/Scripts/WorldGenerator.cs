@@ -116,14 +116,14 @@ public class WorldGenerator : MonoBehaviour
             result.RoomMap[i] = new WorldData.RoomCell[result.WorldHeight];
         }
 
-        var xPos = Random.Range(0, result.WorldWidth - 1);
-        var yPos = Random.Range(0, result.WorldHeight - 1);
+        var FirstRoomPosX = Random.Range(0, result.WorldWidth - 1);
+        var FirstRoomPosY = Random.Range(0, result.WorldHeight - 1);
 
         Info.RoomsLeft = result.RoomCount;
         Info.KeysCount = Mathf.Clamp(Mathf.CeilToInt((float)result.RoomCount / (float)Keys.Count), 0, Keys.Count);
         Info.Keys = new Stack<KeyInfo>();
 
-        result.FirstRoom = BuildRoomsRecurrent(ref result, new Room.MapPos(xPos, yPos), CorridorLength).Reference;
+        result.FirstRoom = BuildRoomsRecurrent(ref result, new Room.MapPos(FirstRoomPosX, FirstRoomPosY), CorridorLength).Reference;
 
         BuildLocks(result);
 

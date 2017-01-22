@@ -77,6 +77,8 @@ public class MenuController : GUIBase
         menu.Show();
         menu.gameObject.SetActive(true);
 
+        CanvasGroup.interactable = false;
+
         while (elapsed < AnimDuration)
         {
             elapsed += Time.unscaledDeltaTime;

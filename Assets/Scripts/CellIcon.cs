@@ -6,6 +6,7 @@ using System.Collections.Generic;
 public class CellIcon : MonoBehaviour
 {
     public Image Content;
+    public Image Background;
     public Text Text;
     public Image Left;
     public Image Right;
@@ -20,8 +21,8 @@ public class CellIcon : MonoBehaviour
         if(!Group)
             Group = GetComponent<CanvasGroup>();
 
-        if(!Content)
-            Content = GetComponentInChildren<Image>();
+        if(!Background)
+            Background = GetComponentInChildren<Image>();
     }
 
     public void SetVisible(bool value)

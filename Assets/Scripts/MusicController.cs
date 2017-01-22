@@ -4,6 +4,7 @@ using UnityEngine.Audio;
 
 public class MusicController : MonoBehaviour
 {
+    public AudioSource MainTheme;
     public AudioSource DeathClip;
     public AudioSource MysteryClip;
 
@@ -13,17 +14,15 @@ public class MusicController : MonoBehaviour
     
     public string MainMusicVolume;
     public string DeathMusicVolume;
+    public string SoundVolume;
 
     public float MainFadeTime;
     public float DeathUnfadeTime;
-
-    void Start()
-    {
-        Reset();
-    }
-
+    public float SoundFadeTime;
+    
     public void Reset()
     {
+        Sound.SetFloat(SoundVolume, LinearToDecibel(1));
         MainMusic.SetFloat(MainMusicVolume, LinearToDecibel(1));
         DeathMusic.SetFloat(DeathMusicVolume, LinearToDecibel(0));
     }
@@ -36,6 +35,11 @@ public class MusicController : MonoBehaviour
     public void FadeMain()
     {
         StartCoroutine(FadeMusic(MainMusic, MainMusicVolume, MainFadeTime));
+    }
+
+    public void FadeSound()
+    {
+        StartCoroutine(FadeMusic(Sound, SoundVolume, SoundFadeTime));
     }
 
     public void UnfadeDeath()

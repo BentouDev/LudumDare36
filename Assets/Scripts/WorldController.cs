@@ -1,13 +1,32 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
-public class WorldController : MonoBehaviour
+public class WorldController : MonoBehaviour, ILevelDependable
 {
+    [System.Serializable]
+    public struct PickupInfo
+    {
+        [SerializeField]
+        public GameObject PickupPrefab;
+
+        [SerializeField]
+        public bool Singleton;
+
+        [SerializeField]
+        public int Chance;
+
+        [HideInInspector]
+        public int SpawnCount;
+    }
+
     [Header("Pickups")]
     public GameObject KeyPickupPrefab;
     public GameObject DeepDoorPrefab;
 
-    public List<GameObject> HealthPrefab;
+    [Range(0.1f,1)]
+    public float PickupSpawnChance = 0.75f;
+    public List<PickupInfo> OtherPickups;
 
     [Header("Doors")]
     public GameObject DoorPrefab;
@@ -16,20 +35,44 @@ public class WorldController : MonoBehaviour
     [Header("Enemies")]
     public GameObject EnemyPrefab;
 
+    private readonly List<Door> CurrentDoors = new List<Door>();
+
+    private Room CurrentRoom;
     private Game Game;
     private WorldData Data;
 
-    private Room CurrentRoom;
-    private List<Door> CurrentDoors = new List<Door>();
-
     private bool WasCleared;
-
-    private bool hasWayToBoss;
-    private bool hasWayFromBoss;
-
+    
+    public int PickupChanceCount
+    {
+        get { return OtherPickups.Sum(o => o.Chance); }
+    }
+    
     public Room GetCurrentRoom()
     {
         return CurrentRoom;
+    }
+    
+    public void OnLevelLoaded()
+    {
+
+    }
+
+    public void OnLevelCleanUp()
+    {
+        if (Data != null)
+        {
+            CurrentDoors.Clear();
+            CurrentRoom = null;
+            WasCleared = false;
+
+            foreach (Room room in Data.AllRooms)
+            {
+                Destroy(room.gameObject);
+            }
+
+            Data = null;
+        }
     }
 
     public void CreateWorld(Game game, WorldData data)
@@ -37,6 +80,13 @@ public class WorldController : MonoBehaviour
         Game = game;
         Data = data;
         ActivateRoom(Data.FirstRoom, Vector3.zero);
+
+        for (int i = 0; i < OtherPickups.Count; i++)
+        {
+            var pickup = OtherPickups[i];
+                pickup.SpawnCount = 0;
+            OtherPickups[i] = pickup;
+        }
     }
 
     public void ActivateRoom(Room room, Vector3 position)
@@ -117,43 +167,78 @@ public class WorldController : MonoBehaviour
             var deepDoor = deep.GetComponentInChildren<DeepDoors>();
                 deepDoor.Init(Game);
 
-            float random = Random.Range(0.0f, 1.0f);
-            if (random > 0.5f)
-            {
-                Game.Music.PlayMystery();
-
-                int index = Random.Range(0, HealthPrefab.Count);
-                var go = Instantiate(HealthPrefab[index], CurrentRoom.transform) as GameObject;
-                go.transform.position = CurrentRoom.transform.position;
-            }
+            TryToSpawnPickup();
         }
         else
         {
             if (CurrentRoom.KeyPickup != null)
             {
-                Game.Music.PlayMystery();
-
-                var go = Instantiate(KeyPickupPrefab, CurrentRoom.transform) as GameObject;
-                go.transform.position = CurrentRoom.transform.position;
-
-                var key = go.GetComponent<KeyPickup>();
-                key.Init(CurrentRoom.KeyPickup);
+                SpawnPickup(KeyPickupPrefab);
             }
             else
             {
-                float random = Random.Range(0.0f, 1.0f);
-                if (random > 0.5f)
-                {
-                    Game.Music.PlayMystery();
-
-                    int index = Random.Range(0, HealthPrefab.Count);
-                    var go = Instantiate(HealthPrefab[index], CurrentRoom.transform) as GameObject;
-                    go.transform.position = CurrentRoom.transform.position;
-                }
+                TryToSpawnPickup();
             }
         }
         
         UnlockDoors();
+    }
+
+    private void TryToSpawnPickup()
+    {
+        float spawnChance = Random.Range(0.0f, 1.0f);
+        if (spawnChance > (1 - PickupSpawnChance))
+        {
+            SpawnPickup(TryGetRandomPickup());
+        }
+    }
+
+    private void SpawnPickup(GameObject prefab)
+    {
+        if (prefab != null)
+        {
+            var go = Instantiate(prefab, CurrentRoom.transform) as GameObject;
+                go.transform.position = CurrentRoom.transform.position;
+            
+            CurrentRoom.ActivePickup = go.GetComponent<GenericPickup>();
+            CurrentRoom.ActivePickup.Init(CurrentRoom);
+
+            Game.Music.PlayMystery();
+        }
+    }
+
+    private GameObject TryGetRandomPickup()
+    {
+        float random = Random.Range(0.0f, 1.0f);
+        
+        var pickup = new PickupInfo();
+        var chanceAccumulator = 0;
+        var availablePickups = OtherPickups.Where(o => (!o.Singleton || o.SpawnCount == 0)).ToList();
+
+        foreach (var currentPickup in availablePickups)
+        {
+            chanceAccumulator += currentPickup.Chance;
+
+            if (chanceAccumulator/(float) PickupChanceCount > random)
+            {
+                pickup = currentPickup;
+                break;
+            }
+        }
+        
+        if (pickup.Singleton && pickup.SpawnCount > 0)
+            return null;
+
+        if (pickup.PickupPrefab != null)
+        {
+            var index = OtherPickups.IndexOf(pickup);
+            pickup.SpawnCount++;
+            OtherPickups[index] = pickup;
+            
+            return pickup.PickupPrefab;
+        }
+
+        return null;
     }
 
     private void UnlockDoors()
@@ -184,21 +269,6 @@ public class WorldController : MonoBehaviour
 
         foreach (Room.DoorDirection dir in Room.AllDirs)
         {
-            /*var cell = room.GetGlobalRoomCell(Data, dir);
-            if(cell.Type == Room.RoomType.Empty)
-                continue;
-
-            bool toBoss = cell.Type == Room.RoomType.Boss;
-            bool isFirstRoom = room == Data.FirstRoom || cell.Reference == Data.FirstRoom;
-
-            if (((isBoss || toBoss) && isFirstRoom) || (isBoss && hasWayToBoss) || (toBoss && hasWayToBoss))
-                continue;
-
-            room.HideDoorPlaceholder(dir);
-
-            hasWayToBoss |= isBoss;
-            hasWayFromBoss |= toBoss;*/
-
             var cell = room.GetConnectedRoomCell(dir);
             if (cell.Type == Room.RoomType.Empty)
                 continue;
