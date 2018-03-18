@@ -28,7 +28,7 @@ Rozgrywka odbywa się w dwóch wymiarach przestrzennych oraz czasie.
 Czas gry jest ciągły. Gra nie posiada limitu czasowego.
 
 ## Przestrzeń
-Przestrzeń gry składa się z dwóch warstw : 
+Przestrzeń gry składa się z dwóch warstw: 
 
 ### 2.1. Świat
 Warstwą nadrzędną jest ``świat``, składający się ze skończonej ilości pokoi,
@@ -65,7 +65,7 @@ Dodatkowo, w niektórych pokojach znajdują się elementy dekoracyjne, takie jak
     - nieodwiedzony
     - aktywny
     - odwiedzony
-- Asocjacje / Kompozycja (?)
+- Asocjacje / Kompozycja
     - postać gracza - od ``0`` do ``1``
     - przeciwnicy - od ``0`` do ``N``
     - drzwi - od ``1`` do ``4``
@@ -204,7 +204,7 @@ W grze wyróżniamy następujące rodzaje obiektów :
     - postać gracza może przejść przez otwarte drzwi poprzez kolizję z nimi
 - Ograniczenia
     - tylko postać gracza może przejść przez drzwi
-    - postać gracza nie może przejść przez zakmnięte drzwi
+    - postać gracza nie może przejść przez zamknięte drzwi
     - jeżeli drzwi są zamknięte przez jakiś klucz, gracz musi go posiadać by mogły się otworzyć
 
 ### 4.3. Portal
@@ -285,8 +285,8 @@ Diagram aktywności
 ![Diagram Aktywności](./TankInDungeonStateMachine.png)
 
 ## Menu Główne
-Po uruchomieniu gry przenosimy się od menu głownego. Sterowanie po menu odbywa się za pomocą strzałek, potwierdzenie zaznaczonej opcji znajduje się pod klawiszem enter.
-Poniżej znajduje się diagram przypadków użycia głownego menu :
+Po uruchomieniu gry przenosimy się od menu głównego. Sterowanie po menu odbywa się za pomocą strzałek, potwierdzenie zaznaczonej opcji znajduje się pod klawiszem enter.
+Poniżej znajduje się diagram przypadków użycia głównego menu:
 
 ![Schemat Menu](./TankInDungeonMenuScheme.png)
 
@@ -298,7 +298,7 @@ Podczas rozgrywki możemy wydzielić cztery glówne elementy interface'u :
 - Aktualny czas gry (prawy dolny róg)
 
 ## Interakcje
-Poruszanie się postacią odbywa się za pomocą dwóch grup przycisków. Klawisze WSAD odpowiadają za poruszanie się postaci gracza w świecie, natomiast strzał w danym kierunku odbywa się poprzez wciśnięcie odpowienich klawiszy strzałek.
+Poruszanie się postacią odbywa się za pomocą dwóch grup przycisków. Klawisze WSAD odpowiadają za poruszanie się postaci gracza w świecie, natomiast strzał w danym kierunku odbywa się poprzez wciśnięcie odpowiednich klawiszy strzałek.
 Przytrzymanie danego klawisza powoduje ciągły ruch postaci w danym kierunku, podobnie jak przytrzymanie klawisza strzałek powoduje ciągły ostrzał z odpowiednią częstotliwością.
 
 Gra pozwala również na sterowanie za pomocą pada do gier. W tym przypadku ruch odbywa się poprzez wychylenie lewej gałki analogowej w danym kierunku, strzał zaś poprzez wychylenie prawej.
@@ -409,7 +409,8 @@ Wartość ta została wyznaczona w trakcie testowania gry.
 KeysCount = RoomCount / 5;
 ```
 
-Sposób działania prezentuje się w następujący sposób :
+
+działania prezentuje się w następujący sposób:
 - Najpierw algorytm szuka optymalnej drogi od pokoju początkowego do pokoju końcowego i zapamiętuje ją jako drogę główną
 - Pierwszy klucz zostaje umieszczony w pokoju jak najdalszym od początkowego, nie będącego jednocześnie pokojem głównym
 - Każdy kolejny klucz, podobnie jak pierwszy, umieszczany jest w pokoju jak najdalszym od początkowego, nie będącego jednocześnie pokojem głównym, 
