@@ -175,7 +175,7 @@ public class ScoreManager : MonoBehaviour
         UnityWebRequest request = UnityWebRequest.Get(string.Format("{0}/{1}", domainApiUrl, topScoreCount));
         yield return request.Send();
 
-        if (request.isError)
+        if (request.isNetworkError)
         {
             Debug.LogError(request.error);
             
